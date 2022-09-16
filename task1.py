@@ -1,5 +1,6 @@
 import numpy as np
 from math import inf
+from decimal import *
 
 
 def f_epsilon():
@@ -18,7 +19,7 @@ def f_epsilon():
     while(runnable):
         new = eps/np.float32(2)
         count += 1
-        if ((np.float32(1) + new - np.float32(1) != np.float32(0))
+        if ((np.float32(1) + new != np.float32(1))
                 and (np.float32(1) + new/np.float32(2) - np.float32(1) == np.float32(0))):
             eps = new
             runnable = 0
@@ -100,7 +101,8 @@ def f_compare(eps):
 def d_compare(eps):
     values= {'1': (np.float64(1)), '1+eps/2': np.float64(1) + eps / np.float64(2),
                   '1+eps': np.float64(1) + eps,
-                  '1+eps+eps/2': np.float64(1) + eps + eps / np.float64(2)}
+                  '1+eps+eps/2': Decimal(np.float64(1) + eps + eps / np.float64(2)),
+                '1+eps/2+eps': Decimal(np.float64(1) + eps / np.float64(2) + eps)}
 
     print(values.items())
     for name1, num1 in values.items():
@@ -122,14 +124,15 @@ def run():
     f_pow_max, f_pow_min = f_power('MAX'), f_power('MIN')
     d_pow_max, d_pow_min = d_power('MAX'), d_power('MIN')
 
-    print(f'Эпсилон для 32 бит:     {f_eps}')
-    print(f'Эпсилон для 64 бит:      {d_eps} \n\n')
+    # print(f'Эпсилон для 32 бит:     {f_eps}')
+    # print(f'Эпсилон для 64 бит:      {d_eps} \n\n')
+    #
+    # print(f'Мантисса для 32 бит:    {f_m}')
+    # print(f'Мастисса для 64 бит:    {d_m}\n\n')
+    #
+    # print(f'Порядок для 32 бит:     MAX: {f_pow_max}    MIN: {f_pow_min}')
+    # print(f'Порядок для 64 бит:     MAX: {d_pow_max}    MIN: {d_pow_min}')
 
-    print(f'Мантисса для 32 бит:    {f_m}')
-    print(f'Мастисса для 64 бит:    {d_m}\n\n')
+    #f_compare(f_eps)
 
-    print(f'Порядок для 32 бит:     MAX: {f_pow_max}    MIN: {f_pow_min}')
-    print(f'Порядок для 64 бит:     MAX: {d_pow_max}    MIN: {d_pow_min}')
-
-    f_compare(f_eps)
     d_compare(d_eps)
