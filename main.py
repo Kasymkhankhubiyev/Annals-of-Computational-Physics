@@ -3,5 +3,5 @@ import arrayoffunctions as arf
 
 if __name__ == '__main__':
 
-    arf.run()
+    pass
 
