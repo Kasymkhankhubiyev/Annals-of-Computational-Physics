@@ -1,7 +1,7 @@
-import numpy as np
-import arrayoffunctions as arf
+
+import task2
 
 if __name__ == '__main__':
 
-    pass
+    task2.run()
 
