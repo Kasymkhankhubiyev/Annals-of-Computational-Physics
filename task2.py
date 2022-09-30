@@ -38,10 +38,11 @@ h = 6.582 * 1e-16 #eV * s
 alfa = 2 * m * pow(A, 2) * U0 / (h*h)
 min_val = np.float64(1e-4)
 
+a = np.float64(0.99)
+b = np.float64(1.) - min_val
 
 def run():
-    a = np.float64(0.99)
-    b = np.float64(1) - min_val
+    print(b)
     x = predictX(a, b)[-1]
 
     fhalf = []
@@ -87,7 +88,7 @@ def dichotomy_method(a, b, farr, xarr):
     num = len(farr)
     f_a = f(a)
     f_b = f(b)
-    xarr.append((a + b) / 2)
+    xarr.append((a + b) / 2.)
     farr.append(f(xarr[num]))
 
     if np.abs(farr[num]) < min_val: #достигли точность
@@ -157,11 +158,13 @@ def predictX(a, b):
     return x_arr
 
 
-def draw_graph(val0, val1, color, name, plt, y):
-    plt.plot(val0, val1, color=color)
-    plt.scatter(val0, val1, color='black')
-    plt.set_title(name)
-    plt.set_xlabel('x')
-    plt.set_ylabel(y)
-    plt.plot(val0[-1], val1[-1], '*', color='orange', markersize=10)
+
+
+# def draw_graph(val0, val1, color, name, plt, y):
+#     plt.plot(val0, val1, color=color)
+#     plt.scatter(val0, val1, color='black')
+#     plt.set_title(name)
+#     plt.set_xlabel('x')
+#     plt.set_ylabel(y)
+#     plt.plot(val0[-1], val1[-1], '*', color='orange', markersize=10)
 
