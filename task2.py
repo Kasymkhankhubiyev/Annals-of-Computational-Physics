@@ -32,7 +32,7 @@ f in [a, b]; if f(a)*f(1/2(a+b)) <= 0 --> f in [a, 1/2(a+b)];
 import matplotlib.pyplot as plt
 import numpy as np
 
-m, A, U0 = 1, 1, 1
+m, A, U0 = np.float64(1), np.float64(1), np.float64(1)
 h = 6.582 * 1e-16 #eV * s
 
 alfa = 2 * m * pow(A, 2) * U0 / (h*h)
@@ -137,6 +137,7 @@ def newtown_method(X0):
     X1 = X0
     div = 1. / df(X0)
     X0 = X0 - f(X0) * div
+    print(div * f(X0))
     Xvals.append(X0)
     nextX.append(X1)
     while np.abs(X1 - X0) > min_val:

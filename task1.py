@@ -117,21 +117,21 @@ def d_compare(eps):
 
 def run():
     #print(np.finfo(np.float32))
-    # print(np.finfo(np.float64))
+    print(np.finfo(np.float64))
 
     f_eps, f_m = f_epsilon()
     d_eps, d_m = d_epsilon()
     f_pow_max, f_pow_min = f_power('MAX'), f_power('MIN')
     d_pow_max, d_pow_min = d_power('MAX'), d_power('MIN')
 
-    # print(f'Эпсилон для 32 бит:     {f_eps}')
-    # print(f'Эпсилон для 64 бит:      {d_eps} \n\n')
-    #
-    # print(f'Мантисса для 32 бит:    {f_m}')
-    # print(f'Мастисса для 64 бит:    {d_m}\n\n')
-    #
-    # print(f'Порядок для 32 бит:     MAX: {f_pow_max}    MIN: {f_pow_min}')
-    # print(f'Порядок для 64 бит:     MAX: {d_pow_max}    MIN: {d_pow_min}')
+    print(f'Эпсилон для 32 бит:     {f_eps}')
+    print(f'Эпсилон для 64 бит:      {d_eps} \n\n')
+
+    print(f'Мантисса для 32 бит:    {f_m}')
+    print(f'Мастисса для 64 бит:    {d_m}\n\n')
+
+    print(f'Порядок для 32 бит:     MAX: {f_pow_max}    MIN: {f_pow_min}')
+    print(f'Порядок для 64 бит:     MAX: {d_pow_max}    MIN: {d_pow_min}')
 
     #f_compare(f_eps)
 
