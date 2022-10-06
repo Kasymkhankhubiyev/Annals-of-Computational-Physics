@@ -49,6 +49,7 @@ def run():
     plt.title('x^(1/3)*exp(sin(x))')
     plt.savefig('page2.png')
 
+
 def f1(x):
     y = 1. / (1. + x * x)
     return y
