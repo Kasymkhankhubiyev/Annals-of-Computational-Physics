@@ -30,6 +30,7 @@ def run():
     plt.plot(x, y2arr, label='Симпсон', color = colors[1])
     plt.xlabel('Кол-во делений')
     plt.ylabel('Относительная ошибка')
+    plt.title('1/(1+x^2)')
     plt.legend(loc='best')
     plt.savefig('page1.png')
     print('\n\nСчитаем второй интеграл:')
@@ -45,6 +46,7 @@ def run():
     plt.xlabel('Кол-во делений')
     plt.ylabel('Относительная ошибка')
     plt.legend(loc='best')
+    plt.title('x^(1/3)*exp(sin(x))')
     plt.savefig('page2.png')
 
 def f1(x):
