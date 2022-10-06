@@ -3,6 +3,9 @@ def func1(x, y):
     z = x + y
     return z
 
+def hello_world():
+    return 0
+
 
 def func2(x, y):
     z = x ** 2 + y
