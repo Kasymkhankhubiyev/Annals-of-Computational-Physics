@@ -27,7 +27,8 @@ def func(t):
 
 
 def euler():
-    pass
+    x=[]
+    y=[]
 
 def runge_kutta():
     pass

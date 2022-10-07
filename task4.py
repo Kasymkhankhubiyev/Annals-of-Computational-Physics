@@ -23,7 +23,7 @@ def J(x, m, t):
 
 
 def dJ0simpson(a, b, N, x, delta):
-    factor = np.float64(1000.)
+    factor = np.float64(1.)
     j0l = simpson_method(a, b, N, x+(np.float64(delta)/factor), 0)
     j0r = simpson_method(a, b, N, x-(np.float64(delta)/factor), 0)
     res = np.float64((j0l - j0r)/(np.float64(2.) * (np.float64(delta)/factor)))
@@ -31,7 +31,7 @@ def dJ0simpson(a, b, N, x, delta):
 
 
 def dJ0trapeze(a, b, N, x, delta):
-    factor = np.float64(1000.)
+    factor = np.float64(1.)
     j0r = trapeze_method(a, b, N, x+(np.float64(delta)/factor), 0)
     j0l = trapeze_method(a, b, N, x-(np.float64(delta)/factor), 0)
     res = np.float64((j0r - j0l)/(np.float64(2.) * (np.float64(delta)/factor)))
@@ -46,7 +46,7 @@ def simpson_method(a, b, N, x, m):
     :return:
     """
 
-    tarr = np.linspace(np.float64(a), np.float64(b), 2**9)
+    tarr = np.linspace(np.float64(a), np.float64(b), N)#)2**9)
     h = tarr[1] - tarr[0]
     yarr = [J(x, m, t) for t in tarr]
     S = np.float64(0.)
@@ -67,7 +67,7 @@ def trapeze_method(a, b, N, x, m):
     :return:
     """
 
-    tarr = np.linspace(a, b, 2**9)
+    tarr = np.linspace(a, b, N)#2**9)
     h = tarr[1] - tarr[0]
     yarr = [J(x, m, t) for t in tarr]
     S = 0
@@ -79,7 +79,7 @@ def trapeze_method(a, b, N, x, m):
 
 
 def run():
-    N = 100
+    N = 1000
     a = 0
     b = np.pi
     points = np.linspace(a, b, N)
@@ -88,7 +88,9 @@ def run():
     xarr, J1s,J0s, dJ0s = [], [], [], []
     J1t, J0t, dJ0t = [], [], []
     deltaJs, deltaJt = [], []
+
     for i in range(N + 1):
+        print(i)
         x = i * step
         xarr.append(x)
         J0s.append(simpson_method(a, b, N, x, 0))
@@ -161,5 +163,39 @@ def run():
     fig.set_size_inches(11.5, 6.5)
     plt.legend(loc='best')
     plt.savefig('task4trapeze.png')
+
+    # err = []
+    # Ns = []
+    # for K in range(10, 1000, 10):
+    #     Ns.append(K)
+    #     points = np.linspace(a, b, K)
+    #     delta = points[1] - points[0]
+    #     step = 2 * np.pi / K
+    #     xarr, J1s, J0s, dJ0s = [], [], [], []
+    #     J1t, J0t, dJ0t = [], [], []
+    #     deltaJs, deltaJt = [], []
+    #
+    #     for i in range(K + 1):
+    #         print(i)
+    #         x = i * step
+    #         xarr.append(x)
+    #         J0s.append(simpson_method(a, b, K, x, 0))
+    #         J1s.append(simpson_method(a, b, K, x, 1))
+    #         dJ0s.append(dJ0simpson(a, b, K, x, delta))
+    #         deltaJs.append(dJ0s[i] + J1s[i])
+    #     summ = 0
+    #     for i in range(len(deltaJs)):
+    #         summ += deltaJs[i]
+    #     err.append(summ/len(deltaJs))
+    #
+    # plt.close()
+    # plt.plot(Ns, err, color=colors[0])
+    # plt.xlabel('Кол-во делений')
+    # plt.ylabel('Ошибка')
+    # #plt.legend(loc='best')
+    # plt.savefig('task4error1000iter.png')
+
+
+
 
 

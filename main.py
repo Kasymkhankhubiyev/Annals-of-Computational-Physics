@@ -6,5 +6,5 @@ import task5
 
 if __name__ == '__main__':
 
-    task5.run()
+    task4.run()
 

@@ -39,6 +39,13 @@ def newtown(x_points, y_points, x, n):
         pn = factors[n-1-i] + (x - x_points[n-1-i]) * pn
     return pn
 
+# def newtown(x_points, y_points, x, n):
+#     factors = divided_dif(x_points, y_points, n+1)
+#     pn = factors[n]
+#     for i in range(1, n+1):
+#         pn = factors[n-i] + (x - x_points[n-i]) * pn
+#     return pn
+
 
 def run():
     fig, axs = plt.subplots(nrows=4, ncols=3)
@@ -49,7 +56,7 @@ def run():
             x_points.append(f_x(k, n))
             y_points.append(f_y(x_points[k]))
             #print(n, len(x_points), len(y_points))
-        x = np.arange(-6., 6., 0.01)
+        x = np.arange(-5., 5., 0.01)
         polynom = []
         for i in range(len(x)):
             f = f_y(x[i])

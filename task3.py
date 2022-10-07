@@ -9,7 +9,7 @@ import math
 import matplotlib.pyplot as plt
 from scipy.integrate import quad
 a1, b1, a2, b2 = 1., -1., 0., 1.
-N = 10
+N = 5
 
 
 
@@ -25,7 +25,7 @@ def run():
     print('Simpson method: \n')
     colors = ['blue', 'red']
     y2arr = simpson_method(a1, b1, N, f1, Integral1)
-    plt.ylim(0, 0.1)
+    #plt.ylim(0, 0.1)
     plt.plot(x, y1arr, label='трапеции', color=colors[0])
     plt.plot(x, y2arr, label='Симпсон', color=colors[1])
     plt.xlabel('Кол-во делений')
@@ -40,7 +40,7 @@ def run():
     print('Simpson method: \n')
     y2arr = simpson_method(a2, b2, N, f2, Integral2)
     plt.close()
-    plt.ylim(0, 0.1)
+    #plt.ylim(0, 0.1)
     plt.plot(x, y1arr, label='трапеции', color=colors[0])
     plt.plot(x, y2arr, label='Симпсон', color=colors[1])
     plt.xlabel('Кол-во делений')
@@ -88,17 +88,24 @@ def simpson_method(a, b, N, f, I):
 
     errarr = []
     for n in range(1, N):
-        xarr = np.linspace(a, b, 2 ** n)
+        xarr = np.linspace(a, b, 4 ** n)
         h = xarr[1] - xarr[0]
         yarr = [f(x) for x in xarr]
         S = 0
         for i in range(len(yarr)):
             if i%2 == 0:
-                factor = 2.
+                if i == 0 or i == len(yarr) - 1:
+                    factor = 1.
+                else:
+                    factor = 2.
             else:
-                factor = 4.
-            S += factor * yarr[i]
-        S = (S - yarr[0] - 3. * yarr[2 ** n - 1]) * h/3.
+                if i == 0 or i == len(yarr) - 1:
+                    factor = 1.
+                else:
+                    factor = 4.
+            S = S + factor * yarr[i]
+        #S = (S - yarr[0] - 3. * yarr[2 ** n - 1]) * h/3.
+        S = S*h/3.
         errarr.append(np.abs((I-S)/I))
         print(f' Кол-во разбиений:\t {2**n} \t\t Значение интеграла:\t{S}')
 
