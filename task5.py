@@ -27,7 +27,7 @@ def divided_dif(x_points, y_points, n):
     f(x_0, x_1, x_2)= {f(x_2) - f(x_2)]/[x_2 - x_1] - f(x_1) - f(x_0)]/[x_1 - x_0]}/[x_2 - x_0]
 
     """
-    for i in range(1, n):
+    for i in range(1, n+1):
         y_points[i:] = (y_points[i:] - y_points[i-1])/(x_points[i:] - x_points[i-1])
     return y_points
 
@@ -35,9 +35,36 @@ def divided_dif(x_points, y_points, n):
 def newtown(x_points, y_points, x, n):
     factors = divided_dif(x_points, y_points, n)
     pn = factors[n-1]
-    for i in range(1, n):
-        pn = factors[n-1-i] + (x - x_points[n-1-i]) * pn
+    for i in range(1, n+1):
+        pn = factors[n-i] + (x - x_points[n-i]) * pn
     return pn
+
+
+def lagrange_factors(x_points: list, n: int) -> list:
+    factors = []
+    for j in range(n):
+        factor = 1.
+        for i in range(n):
+            if j != i:
+                factor *= (x_points[j] - x_points[i])
+        factors.append(factor)
+
+    return factors
+
+
+
+def Lagrange(x_points, y_points, x, n) -> float:
+
+    factors = lagrange_factors(x_points, n)
+    polynom = 0
+    for i in range(n):
+        phi = 1.
+        for j in range(n):
+            phi *= (x - x_points[i])
+        polynom += phi * y_points[i] / factors[i]
+    return polynom
+
+
 
 # def newtown(x_points, y_points, x, n):
 #     factors = divided_dif(x_points, y_points, n+1)
@@ -56,7 +83,7 @@ def run():
             x_points.append(f_x(k, n))
             y_points.append(f_y(x_points[k]))
             #print(n, len(x_points), len(y_points))
-        x = np.arange(-5., 5., 0.01)
+        x = np.arange(-6., 6., 0.01)
         polynom = []
         for i in range(len(x)):
             f = f_y(x[i])
@@ -69,3 +96,26 @@ def run():
 
     fig.set_size_inches(18.5, 10.5)
     plt.savefig('task5.png')
+
+def run_lagrange():
+    fig, axs = plt.subplots(nrows=4, ncols=3)
+    plt.tight_layout(pad=1, h_pad=1, w_pad=1)
+    for n in range(4, 16, 1):  #до 16-ти
+        x_points, y_points = [], []
+        for k in range(n):
+            x_points.append(f_x(k, n))
+            y_points.append(f_y(x_points[k]))
+            #print(n, len(x_points), len(y_points))
+        x = np.arange(-6., 6., 0.01)
+        polynom = []
+        for i in range(len(x)):
+            f = f_y(x[i])
+            p = Lagrange(x_points, y_points, x[i], n)
+            polynom.append(p-f)
+        axs[(n-4)//3, (n-4) % 3].plot(x, polynom, color='blue')
+        axs[(n-4)//3, (n-4) % 3].set(xlabel='X')
+        axs[(n-4)//3, (n-4) % 3].set(ylabel='P-f')
+        axs[(n - 4) // 3, (n - 4) % 3].set(title=str(n))
+
+    fig.set_size_inches(18.5, 10.5)
+    plt.savefig('task5_lagrange.png')

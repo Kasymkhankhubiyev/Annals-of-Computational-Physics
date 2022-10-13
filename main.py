@@ -6,5 +6,5 @@ import task5
 
 if __name__ == '__main__':
 
-    task4.run()
+    task5.run_lagrange()
 
