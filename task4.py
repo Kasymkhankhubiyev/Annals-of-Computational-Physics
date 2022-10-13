@@ -16,6 +16,8 @@ J'_0(x) + J_1(X) = 0
 import numpy as np
 import matplotlib.pyplot as plt
 
+integral: float
+
 
 def J(x, m, t):
     res = np.float64(np.cos(np.float64(m)*np.float64(t) - np.float64(x)*np.sin(np.float64(t))))
@@ -38,7 +40,7 @@ def dJ0trapeze(a, b, N, x, delta):
     return res
 
 
-def simpson_method(a, b, N, x, m):
+def simpson_method(a, b, N, x, m) -> float:
     """
     S[a,b] = (b - a)/6 * [f(a) +4f((a+b)/2) + f(b)]
 
@@ -46,17 +48,17 @@ def simpson_method(a, b, N, x, m):
     :return:
     """
 
-    tarr = np.linspace(np.float64(a), np.float64(b), N)#)2**9)
-    h = tarr[1] - tarr[0]
+    tarr = np.linspace(np.float64(a), np.float64(b), 2 * N)#)2**9)
+    h = (a - b)/(2 * N)
     yarr = [J(x, m, t) for t in tarr]
     S = np.float64(0.)
-    for i in range(len(yarr)):
+    for i in range(1, len(yarr) - 1):
         if i % 2 == 0:
             factor = np.float64(2.)
         else:
             factor = np.float64(4.)
         S += np.float64(factor * yarr[i])
-    S = np.float64((S - yarr[0] - np.float64(3.) * yarr[len(tarr)-1]) * h/np.float64(3.))
+    S = np.float64((S + yarr[0] + yarr[len(tarr)-1]) * h/np.float64(3.))
 
     return S
 
@@ -68,7 +70,7 @@ def trapeze_method(a, b, N, x, m):
     """
 
     tarr = np.linspace(a, b, N)#2**9)
-    h = tarr[1] - tarr[0]
+    h = (b - a) / N
     yarr = [J(x, m, t) for t in tarr]
     S = 0
     for y in yarr:
@@ -79,7 +81,7 @@ def trapeze_method(a, b, N, x, m):
 
 
 def run():
-    N = 1000
+    N = 100
     a = 0
     b = np.pi
     points = np.linspace(a, b, N)
