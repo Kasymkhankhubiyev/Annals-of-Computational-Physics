@@ -14,11 +14,10 @@ import matplotlib.pyplot as plt
 
 mint, maxt = 0, 3
 x0, t0 = 1, 0
-N = 10
 
 
 def difur(x: float) -> float:
-    res = -x
+    res = -1. * x
     return res
 
 
@@ -38,7 +37,7 @@ def euler(M:int):
     return x
 
 
-def runge_kutta_2order(M: int) -> list:
+def runge_kutta_2order(M: int):
     """
     alpha = 3/4 - optimum
     alpha = 1/2 - corrected Euler
@@ -59,42 +58,89 @@ def runge_kutta_2order(M: int) -> list:
 
 
 
-def runge_kutta_4order():
-    pass
+def runge_kutta_4order(M:int):
+    """
+    y_n+1 = y_n + h/6 * [k1 + 2*k2 + 2*k3 + k4]
+    k1 = f(x_n, y_n)
+    k2 = f(x_n + h/2, y_n + h/2 * k1)
+    k3 = f(x_n + h/2, y_n + h/2 * k3)
+    k4 = f(x_n + h, y_n + h * k3)
+    :param M:
+    :return:
+    """
+
+    h = (np.float64(maxt) - np.float64(mint))/np.float64(M)
+    x = [x0]
+
+    for i in range(M):
+        k1 = difur(x[i])
+        k2 = difur(x[i] + h * k1 / 2.)
+        k3 = difur(x[i] + h * k2 / 2.)
+        k4 = difur(x[i] + h * k3)
+        x.append(x[i] + (k1 + 2. * k2 + 2. * k3 + k4) * h / 6.)
+
+    return x
+
+
+def one_shot_errors(num, errors_euler, errors_runge2, errors_runge4):
+    plt.plot(num, errors_euler, label='euler_error', color='red')
+    plt.plot(num, errors_runge2, label='runge2_error', color='blue')
+    plt.plot(num, errors_runge4, label='runge4_error', color='green')
+
+    plt.legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+    plt.savefig('task6_one_shot_errors.png')
 
 
 def error_trand():
     M = 500
-    errors = []
+    errors_euler = []
+    errors_runge2 = []
+    errors_runge4 = []
     for K in range(10, M+10, 10):
-        t = np.linspace(mint, maxt, M)
+        t = np.linspace(mint, maxt, K)
 
         gt = [func(i) for i in t]
 
         euler_sol = euler(K)
+        runge2 = runge_kutta_2order(K)
+        runge4 = runge_kutta_4order(K)
 
-        s = 0
+        euler_s = 0
+        runge2_s = 0
+        runge4_s = 0
         for i in range(len(gt)):
-            s += (gt[i] - euler_sol[i+1])/gt[i]
+            euler_s += (gt[i] - euler_sol[i+1])/gt[i]
+            runge2_s += (gt[i] - runge2[i + 1]) / gt[i]
+            runge4_s += (gt[i] - runge4[i + 1]) / gt[i]
 
-        errors.append(s/K)
+        errors_euler.append(euler_s/K)
+        errors_runge2.append(runge2_s/K)
+        errors_runge4.append(runge4_s/K)
 
     num = [K for K in range(10, M+10, 10)]
 
     fig, axs = plt.subplots(nrows=1, ncols=3)
     plt.tight_layout(pad=1, h_pad=1, w_pad=1)
-    axs[0].plot(num, errors, label='euler_error', color='blue')
+    axs[0].plot(num, errors_euler, label='euler_error', color='blue')
+    axs[1].plot(num, errors_runge2, label='runge2_error', color='blue')
+    axs[2].plot(num, errors_runge4, label='runge4_error', color='blue')
 
-    axs[0].legend(fontsize=7,
-                  ncol=1,
-                  facecolor='oldlace',
-                  edgecolor='r')
+    axs[0].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+    axs[1].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+    axs[2].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
 
     fig.set_size_inches(10.5, 6.5)
     plt.savefig('task6_errors.png')
 
+    fig.clear()
+    plt.close(fig)
+
+    return num, errors_euler, errors_runge2, errors_runge4
+
+
 
 def run():
+    N = 10
 
     t = np.linspace(mint, maxt, N)
 
@@ -109,17 +155,42 @@ def run():
     runge2 = runge_kutta_2order(N)
     runge2_dif = [gt[i] - runge2[i+1] for i in range(len(gt))]
 
+    runge4 = runge_kutta_4order(N)
+    runge4_dif = [gt[i] - runge4[i+1] for i in range(len(gt))]
+
     axs[0, 0].plot(t, euler_sol[1:], label='euler', color='red')
     axs[0, 0].plot(t, gt, label='ground_truth', color='blue')
-    axs[1, 0].plot(t, euler_dif, label='difference', color='green')
+    # axs[1, 0].plot(t, euler_dif, label='difference', color='green')
 
     axs[0, 0].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
 
     axs[0, 1].plot(t, runge2[1:], label='Runge 2 order', color='red')
     axs[0, 1].plot(t, gt, label='ground_truth', color='blue')
-    axs[1, 1].plot(t, runge2_dif, label='difference', color='green')
 
     axs[0, 1].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
 
+    axs[1, 1].plot(t, euler_dif, label='euler_dif', color='green')
+    axs[1, 1].plot(t, runge2_dif, label='runge2_dif', color='red')
+    axs[1, 1].plot(t, runge4_dif, label='runge4_dif', color='blue')
+
+    axs[1, 1].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+
+    axs[1, 2].plot(t, runge2_dif, label='runge2_dif', color='red')
+    axs[1, 2].plot(t, runge4_dif, label='runge4_dif', color='blue')
+
+    axs[1, 2].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+
+    axs[0, 2].plot(t, runge4[1:], label='Runge 4 order', color='red')
+    axs[0, 2].plot(t, gt, label='ground_truth', color='blue')
+    # axs[1, 2].plot(t, runge4_dif, label='difference', color='green')
+
+    axs[0, 2].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+
     fig.set_size_inches(10.5, 6.5)
     plt.savefig('task6.png')
+
+    fig.clear()
+    plt.close(fig)
+
+    items = error_trand()
+    one_shot_errors(items[0], items[1], items[2], items[3])
