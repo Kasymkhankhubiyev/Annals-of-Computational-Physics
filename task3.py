@@ -9,7 +9,7 @@ import math
 import matplotlib.pyplot as plt
 from scipy.integrate import quad
 a1, b1, a2, b2 = 1., -1., 0., 1.
-N = 50
+N = 1000
 
 
 def f1(x) -> float:
@@ -79,25 +79,38 @@ def simpson_method(a, b, N, f, I) -> list:
 
     errarr = []
     for n in range(2, N+1, 1):
-        xarr = np.linspace(a, b, 2 * n)
-        h = (b - a) / (2 * n)  #xarr[1] - xarr[0]
-        yarr = [f(x) for x in xarr]
-        S = 0
-        for i in range(1, len(yarr)-1, 1):
-            if i % 2 == 0:
-                    factor = 2.
-            else:
-                    factor = 4.
-            S = S + factor * yarr[i]
-        #S = (S - yarr[0] - 3. * yarr[2 ** n - 1]) * h/3.
-        S = (S + yarr[0] + yarr[len(yarr) - 1])*h/3.
-        errarr.append(np.abs((I-S)/I))
-        print(f' Кол-во разбиений:\t {n} \t\t Значение интеграла:\t{S}')
+        h = (np.float64(b) - np.float64(a)) / np.float64(n)
+
+        s = 0
+        for i in range(1, n+1):
+            left = np.float64(a) + np.float64(i - 1) * h
+            right = np.float64(a) + i * h
+
+            s += (f(left) + f(right) + 4. * f((right + left) / 2.)) * h / 6.
+
+        errarr.append(np.abs(I-s)/I)
+
+
+        # xarr = np.linspace(a, b, 2 * n)
+        # h = (b - a) / (2 * n)  #xarr[1] - xarr[0]
+        # yarr = [f(x) for x in xarr]
+        # S = 0
+        # for i in range(1, len(yarr)-1, 1):
+        #     if i % 2 == 0:
+        #             factor = 2.
+        #     else:
+        #             factor = 4.
+        #     S = S + factor * yarr[i]
+        # #S = (S - yarr[0] - 3. * yarr[2 ** n - 1]) * h/3.
+        # S = (S + yarr[0] + yarr[len(yarr) - 1])*h/3.
+        # errarr.append(np.abs((I-S)/I))
+        print(f' Кол-во разбиений:\t {n} \t\t Значение интеграла:\t{s}')
 
     return errarr
 
 
 def run():
+    # plt.yscale('log')
     Integral1 = quad(func=f1, a=a1, b=b1)[0]
     Integral2 = quad(func=f2, a=a2, b=b2)[0]
     print(Integral1)
@@ -129,6 +142,7 @@ def run():
     y2arr = simpson_method(a2, b2, N, f2, Integral2)
     # y2arr = simpson(a2, b2, N, f2, Integral2)
     plt.close()
+    plt.yscale('log')
     #plt.ylim(0, 0.1)
     plt.plot(x, y1arr, label='трапеции', color=colors[0])
     plt.plot(x, y2arr, label='Симпсон', color=colors[1])
