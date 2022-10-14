@@ -38,8 +38,25 @@ def euler(M:int):
     return x
 
 
-def runge_kutta_2order():
-    pass
+def runge_kutta_2order(M: int) -> list:
+    """
+    alpha = 3/4 - optimum
+    alpha = 1/2 - corrected Euler
+    alpha = 1 - modified Euler
+    y_n+1 = y_n + h*[(1 - alpha)*f(x, y) + alpha*f(x + h/2*alpha, y + h/2*alpha * f(x_n, y_n))]
+    :return: array of points
+    """
+
+    alpha = np.float64(3./4.)
+    h = (np.float64(maxt) - np.float64(mint))/np.float64(M)
+    x = [x0]
+
+    for i in range(M):
+        x.append(x[i] + h * ((1. - alpha)*difur(x[i]) + alpha * difur(x[i] + h * difur(x[i]) / (2 * alpha))))
+
+    return x
+
+
 
 
 def runge_kutta_4order():
@@ -83,19 +100,26 @@ def run():
 
     gt = [func(i) for i in t]
 
-    fig, axs = plt.subplots(nrows=1, ncols=3)
+    fig, axs = plt.subplots(nrows=2, ncols=3)
     plt.tight_layout(pad=1, h_pad=1, w_pad=1)
+
     euler_sol = euler(N)
     euler_dif = [gt[i] - euler_sol[i+1] for i in range(len(gt))]
 
-    axs[0].plot(t, euler_sol[1:], label='euler', color='red')
-    axs[0].plot(t, gt, label='ground_truth', color='blue')
-    axs[0].plot(t, euler_dif, label='difference', color='green')
+    runge2 = runge_kutta_2order(N)
+    runge2_dif = [gt[i] - runge2[i+1] for i in range(len(gt))]
 
-    axs[0].legend(fontsize=7,
-                  ncol=1,
-                  facecolor='oldlace',
-                  edgecolor='r')
+    axs[0, 0].plot(t, euler_sol[1:], label='euler', color='red')
+    axs[0, 0].plot(t, gt, label='ground_truth', color='blue')
+    axs[1, 0].plot(t, euler_dif, label='difference', color='green')
+
+    axs[0, 0].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+
+    axs[0, 1].plot(t, runge2[1:], label='Runge 2 order', color='red')
+    axs[0, 1].plot(t, gt, label='ground_truth', color='blue')
+    axs[1, 1].plot(t, runge2_dif, label='difference', color='green')
+
+    axs[0, 1].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
 
     fig.set_size_inches(10.5, 6.5)
     plt.savefig('task6.png')
