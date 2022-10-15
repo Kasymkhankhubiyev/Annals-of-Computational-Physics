@@ -15,6 +15,7 @@ J'_0(x) + J_1(X) = 0
 
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 integral: float
 
@@ -48,19 +49,28 @@ def simpson_method(a, b, N, x, m) -> float:
     :return:
     """
 
-    tarr = np.linspace(np.float64(a), np.float64(b), 2 * N)#)2**9)
-    h = (a - b)/(2 * N)
-    yarr = [J(x, m, t) for t in tarr]
-    S = np.float64(0.)
-    for i in range(1, len(yarr) - 1):
-        if i % 2 == 0:
-            factor = np.float64(2.)
-        else:
-            factor = np.float64(4.)
-        S += np.float64(factor * yarr[i])
-    S = np.float64((S + yarr[0] + yarr[len(tarr)-1]) * h/np.float64(3.))
+    h = (np.float64(b) - np.float64(a)) / np.float64(N)
 
-    return S
+    s = 0
+    for i in range(1, N + 1, 10 ** (int(math.log10(N)) - 1)):
+        left = np.float64(a) + np.float64(i - 1) * h
+        right = np.float64(a) + i * h
+
+        s += (J(x, m, left) + J(x, m, right) + 4. * J(x, m, (right + left) / 2.)) * h / 6.
+
+    # tarr = np.linspace(np.float64(a), np.float64(b), N)#)2**9)
+    # h = (a - b)/(N)
+    # yarr = [J(x, m, t) for t in tarr]
+    # S = np.float64(0.)
+    # for i in range(1, len(yarr) - 1):
+    #     if i % 2 == 0:
+    #         factor = np.float64(2.)
+    #     else:
+    #         factor = np.float64(4.)
+    #     S += np.float64(factor * yarr[i])
+    # S = np.float64((S + yarr[0] + yarr[len(tarr)-1]) * h/np.float64(3.))
+
+    return s
 
 
 def trapeze_method(a, b, N, x, m):
@@ -81,28 +91,28 @@ def trapeze_method(a, b, N, x, m):
 
 
 def run():
-    N = 100
+    N = 10 ** 12
     a = 0
     b = np.pi
-    points = np.linspace(a, b, N)
-    delta = points[1] - points[0]
-    step = 2 * np.pi / N
+    #points = np.linspace(a, b, N)
+    delta = np.float64(float(b) - float(a)) / float(N)
+    step = 2 * np.pi / math.log10(N)
     xarr, J1s,J0s, dJ0s = [], [], [], []
     J1t, J0t, dJ0t = [], [], []
     deltaJs, deltaJt = [], []
 
-    for i in range(N + 1):
-        print(i)
+
+    for i in range(1, 13):
         x = i * step
         xarr.append(x)
         J0s.append(simpson_method(a, b, N, x, 0))
         J1s.append(simpson_method(a, b, N, x, 1))
         dJ0s.append(dJ0simpson(a, b, N, x, delta))
-        deltaJs.append(dJ0s[i] + J1s[i])
-        J0t.append(trapeze_method(a, b, N, x, 0))
-        J1t.append(trapeze_method(a, b, N, x, 1))
-        dJ0t.append(dJ0trapeze(a, b, N, x, delta))
-        deltaJt.append(dJ0t[i] + J1t[i])
+        deltaJs.append(dJ0s[i-1] + J1s[i-1])
+        # J0t.append(trapeze_method(a, b, N, x, 0))
+        # J1t.append(trapeze_method(a, b, N, x, 1))
+        # dJ0t.append(dJ0trapeze(a, b, N, x, delta))
+        # deltaJt.append(dJ0t[i] + J1t[i])
 
     fig, axs = plt.subplots(nrows=1, ncols=3)
     plt.tight_layout(pad=3, h_pad=3, w_pad=3)
@@ -137,65 +147,67 @@ def run():
     plt.savefig('task4simps.png')
 
     plt.close()
-    fig, axs = plt.subplots(nrows=1, ncols=3)
-    plt.tight_layout(pad=3, h_pad=3, w_pad=3)
-
-    axs[0].plot(xarr, J1t, label='J1 trapeze', color=colors[0])
-    axs[0].plot(xarr, J0t, label='J0 trapeze', color=colors[1])
-    axs[0].plot(xarr, dJ0t, label='dJ0 trapeze', color=colors[2])
-    axs[0].set(xlabel='X')
-    axs[0].set(ylabel='Jm(x)')
-    axs[0].set(title='Ф-ции Бесселя')
-    axs[0].legend(fontsize=7,
-                  ncol=1,
-                  facecolor='oldlace',
-                  edgecolor='r')
-
-    axs[1].plot(xarr, J1t, label='J1 trapeze', color=colors[0])
-    axs[1].plot(xarr, dJ0t, label='dJ0 trapeze', color=colors[2])
-    axs[1].set(title='J1 and dJ0 trapeze')
-    axs[1].legend(fontsize=7,
-                  ncol=1,
-                  facecolor='oldlace',
-                  edgecolor='r')
-
-    axs[2].plot(xarr, deltaJt, label='Trapeze', color=colors[1])
-    axs[2].set(title="J'0(x) + J1(x)")
-
-    fig.set_size_inches(11.5, 6.5)
-    plt.legend(loc='best')
-    plt.savefig('task4trapeze.png')
-
-    # err = []
-    # Ns = []
-    # for K in range(10, 1000, 10):
-    #     Ns.append(K)
-    #     points = np.linspace(a, b, K)
-    #     delta = points[1] - points[0]
-    #     step = 2 * np.pi / K
-    #     xarr, J1s, J0s, dJ0s = [], [], [], []
-    #     J1t, J0t, dJ0t = [], [], []
-    #     deltaJs, deltaJt = [], []
+    # fig, axs = plt.subplots(nrows=1, ncols=3)
+    # plt.tight_layout(pad=3, h_pad=3, w_pad=3)
     #
-    #     for i in range(K + 1):
-    #         print(i)
-    #         x = i * step
-    #         xarr.append(x)
-    #         J0s.append(simpson_method(a, b, K, x, 0))
-    #         J1s.append(simpson_method(a, b, K, x, 1))
-    #         dJ0s.append(dJ0simpson(a, b, K, x, delta))
-    #         deltaJs.append(dJ0s[i] + J1s[i])
-    #     summ = 0
-    #     for i in range(len(deltaJs)):
-    #         summ += deltaJs[i]
-    #     err.append(summ/len(deltaJs))
+    # axs[0].plot(xarr, J1t, label='J1 trapeze', color=colors[0])
+    # axs[0].plot(xarr, J0t, label='J0 trapeze', color=colors[1])
+    # axs[0].plot(xarr, dJ0t, label='dJ0 trapeze', color=colors[2])
+    # axs[0].set(xlabel='X')
+    # axs[0].set(ylabel='Jm(x)')
+    # axs[0].set(title='Ф-ции Бесселя')
+    # axs[0].legend(fontsize=7,
+    #               ncol=1,
+    #               facecolor='oldlace',
+    #               edgecolor='r')
     #
+    # axs[1].plot(xarr, J1t, label='J1 trapeze', color=colors[0])
+    # axs[1].plot(xarr, dJ0t, label='dJ0 trapeze', color=colors[2])
+    # axs[1].set(title='J1 and dJ0 trapeze')
+    # axs[1].legend(fontsize=7,
+    #               ncol=1,
+    #               facecolor='oldlace',
+    #               edgecolor='r')
+    #
+    # axs[2].plot(xarr, deltaJt, label='Trapeze', color=colors[1])
+    # axs[2].set(title="J'0(x) + J1(x)")
+
+    # fig.set_size_inches(11.5, 6.5)
+    # plt.legend(loc='best')
+    # plt.savefig('task4trapeze.png')
     # plt.close()
-    # plt.plot(Ns, err, color=colors[0])
-    # plt.xlabel('Кол-во делений')
-    # plt.ylabel('Ошибка')
-    # #plt.legend(loc='best')
-    # plt.savefig('task4error1000iter.png')
+
+    err = []
+    Ns = []
+    for k in range(1, 13):
+        K = pow(10, k)
+        print(K)
+        Ns.append(K)
+        delta = np.float64(float(b) - float(a)) / float(K)
+        step = 2 * np.pi / math.log10(K)
+        xarr, J1s, J0s, dJ0s = [], [], [], []
+        J1t, J0t, dJ0t = [], [], []
+        deltaJs, deltaJt = [], []
+
+        for i in range(int(math.log10(K))+1):
+            print(i)
+            x = i * step
+            xarr.append(x)
+            J0s.append(simpson_method(a, b, K, x, 0))
+            J1s.append(simpson_method(a, b, K, x, 1))
+            dJ0s.append(dJ0simpson(a, b, K, x, delta))
+            deltaJs.append(dJ0s[i] + J1s[i])
+        summ = 0
+        for i in range(len(deltaJs)):
+            summ += deltaJs[i]
+        err.append(summ/len(deltaJs))
+
+    plt.yscale('log')
+    plt.plot(Ns, err, color='red')
+    plt.xlabel('Кол-во делений')
+    plt.ylabel('Ошибка')
+    #plt.legend(loc='best')
+    plt.savefig('task4error1000iter.png')
 
 
 
