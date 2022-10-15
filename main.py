@@ -9,5 +9,5 @@ import task7
 
 if __name__ == '__main__':
 
-    task3.run()
+    task4.run()
 
