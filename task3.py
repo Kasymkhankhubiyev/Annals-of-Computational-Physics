@@ -27,46 +27,34 @@ def trapeze_method(a, b, N, f, I) -> list:
     S[a,b]=(f(a) + f(b))/2 * (b - a)
     :return:
     """
-    errarr = []
+    # errarr = []
 
-    for n in range(2, N+1, 1):
-        xarr = np.linspace(a, b, n)
-        h = (b - a) / (n)  # xarr[1] - xarr[0]
-        yarr = [f(x) for x in xarr]
-        S = 0
-        for y in yarr:
-            S += y
-        S = (S - 0.5*(yarr[0] + yarr[len(xarr)-1]))*h
-        errarr.append(np.abs((I-S)/I))
-        print(f' Кол-во разбиений:\t {n} \t\t Значение интеграла:\t{S}')
+    # for n in range(2, N+1, 1):
+    #     xarr = np.linspace(a, b, n)
+    #     h = (b - a) / (n)  # xarr[1] - xarr[0]
+    #     yarr = [f(x) for x in xarr]
+    #     S = 0
+    #     for y in yarr:
+    #         S += y
+    #     S = (S - 0.5*(yarr[0] + yarr[len(xarr)-1]))*h
+    #     errarr.append(np.abs((I-S)/I))
+    #     print(f' Кол-во разбиений:\t {n} \t\t Значение интеграла:\t{S}')
+
+    errarr = []
+    for n in range(2, N + 1, 1):
+        h = (np.float64(b) - np.float64(a)) / np.float64(n)
+
+        s = 0
+        for i in range(1, n + 1):
+            left = np.float64(a) + np.float64(i - 1) * h
+            right = np.float64(a) + i * h
+
+            s += (right - left) * (f(left) + f(right)) / 2.
+
+        errarr.append(np.abs((I - s) / I))
+        print(f' Кол-во разбиений:\t {n} \t\t Значение интеграла:\t{s}')
 
     return errarr
-
-
-def trapeze(a, b, N, f, I) -> list:
-
-    err = []
-    for n in range(2, N+1, 1):
-        x = np.linspace(a, b, n**2 + 1)
-        y = np.array([f(i) for i in x])#np.vectorize(f(x))
-
-        s = (b - a) / (2 * (n**2)) * np.sum(y[1:] + y[:-1])
-        err.append(np.abs(I-s)/I)
-
-    return err
-
-
-def simpson(a, b, N, f, I) -> list:
-
-    err = []
-    for n in range(1, N+1, 1):
-        x = np.linspace(a, b, n**2 + 1)
-        y = np.array([f(i) for i in x])  # np.vectorize(f(x))
-
-        s = (b - a)/((n ** 2) * 3) * np.sum(y[0:-1:2] + 4*y[1::2] + y[2::2])
-        err.append(np.abs(I-s)/I)
-
-    return err
 
 
 def simpson_method(a, b, N, f, I) -> list:
@@ -88,7 +76,7 @@ def simpson_method(a, b, N, f, I) -> list:
 
             s += (f(left) + f(right) + 4. * f((right + left) / 2.)) * h / 6.
 
-        errarr.append(np.abs(I-s)/I)
+        errarr.append(np.abs((I-s)/I))
 
 
         # xarr = np.linspace(a, b, 2 * n)
@@ -110,7 +98,7 @@ def simpson_method(a, b, N, f, I) -> list:
 
 
 def run():
-    # plt.yscale('log')
+    plt.yscale('log')
     Integral1 = quad(func=f1, a=a1, b=b1)[0]
     Integral2 = quad(func=f2, a=a2, b=b2)[0]
     print(Integral1)
@@ -128,6 +116,7 @@ def run():
     #plt.ylim(0, 0.1)
     plt.plot(x, y1arr, label='трапеции', color=colors[0])
     plt.plot(x, y2arr, label='Симпсон', color=colors[1])
+    plt.xlim(2, N)
     plt.xlabel('Кол-во делений')
     plt.ylabel('Относительная ошибка')
     plt.title('1/(1+x^2)')
