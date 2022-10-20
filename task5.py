@@ -35,8 +35,35 @@ def divided_dif(x_points, y_points, n):
 def newtown(x_points, y_points, x, n):
     factors = divided_dif(x_points, y_points, n)
     pn = factors[n-1]
-    for i in range(1, n+1):
+    for i in range(1, n-1):
         pn = factors[n-i] + (x - x_points[n-i]) * pn
+    return pn
+
+
+def div_dif(x_points, y_points, n):
+
+    """
+    y(x_1, x_2, ..., x_n) = SUM(i=1; n){y(x_i)/П(x_i-x_j)}
+    """
+    div_difs = [y_points[0]]
+    for i in range(1, n):
+        summ = 0.
+        for j in range(i+1):
+            frac = 1.
+            for k in range(i+1):
+                if k != j:
+                    frac *= (x_points[j] - x_points[k])
+            summ += y_points[j] / frac
+        div_difs.append(summ)
+
+    return div_difs
+
+
+def newtown_ext(x_points, y_points, x, n):
+    factors = div_dif(x_points, y_points, n)
+    pn = factors[n-1]
+    for i in range(n):
+        pn = factors[n-1-i] + (x - x_points[n-1-i]) * pn
     return pn
 
 
@@ -52,26 +79,18 @@ def lagrange_factors(x_points: list, n: int) -> list:
     return factors
 
 
-
 def Lagrange(x_points, y_points, x, n) -> float:
 
     factors = lagrange_factors(x_points, n)
     polynom = 0
     for i in range(n):
         phi = 1.
+
         for j in range(n):
             phi *= (x - x_points[i])
+
         polynom += phi * y_points[i] / factors[i]
     return polynom
-
-
-
-# def newtown(x_points, y_points, x, n):
-#     factors = divided_dif(x_points, y_points, n+1)
-#     pn = factors[n]
-#     for i in range(1, n+1):
-#         pn = factors[n-i] + (x - x_points[n-i]) * pn
-#     return pn
 
 
 def run():
@@ -79,20 +98,23 @@ def run():
     plt.tight_layout(pad=1, h_pad=1, w_pad=1)
     for n in range(4, 16, 1):  #до 16-ти
         x_points, y_points = [], []
-        for k in range(n):
+        for k in range(n+1):
             x_points.append(f_x(k, n))
             y_points.append(f_y(x_points[k]))
             #print(n, len(x_points), len(y_points))
-        x = np.arange(-6., 6., 0.01)
+        x = np.arange(-5., 5., 0.01)
         polynom = []
+        f_s = []
         for i in range(len(x)):
             f = f_y(x[i])
-            p = newtown(x_points, y_points, x[i], n)
+            f_s.append(f)
+            p = newtown_ext(x_points, y_points, x[i], n+1)
             polynom.append(p-f)
         axs[(n-4)//3, (n-4) % 3].plot(x, polynom, color='blue')
         axs[(n-4)//3, (n-4) % 3].set(xlabel='X')
         axs[(n-4)//3, (n-4) % 3].set(ylabel='P-f')
         axs[(n - 4) // 3, (n - 4) % 3].set(title=str(n))
+        print(f_s)
 
     fig.set_size_inches(18.5, 10.5)
     plt.savefig('task5.png')
@@ -102,16 +124,19 @@ def run_lagrange():
     plt.tight_layout(pad=1, h_pad=1, w_pad=1)
     for n in range(4, 16, 1):  #до 16-ти
         x_points, y_points = [], []
-        for k in range(n):
+        for k in range(n+1):
             x_points.append(f_x(k, n))
             y_points.append(f_y(x_points[k]))
             #print(n, len(x_points), len(y_points))
         x = np.arange(-6., 6., 0.01)
         polynom = []
+        f_points, p_points = [], []
         for i in range(len(x)):
             f = f_y(x[i])
-            p = Lagrange(x_points, y_points, x[i], n)
-            polynom.append(p-f)
+
+            p = Lagrange(x_points, y_points, x[i], n+1)
+
+            polynom.append(f - p)
         axs[(n-4)//3, (n-4) % 3].plot(x, polynom, color='blue')
         axs[(n-4)//3, (n-4) % 3].set(xlabel='X')
         axs[(n-4)//3, (n-4) % 3].set(ylabel='P-f')
@@ -119,3 +144,34 @@ def run_lagrange():
 
     fig.set_size_inches(18.5, 10.5)
     plt.savefig('task5_lagrange.png')
+
+
+def run_lagrange_two_plots():
+    fig, axs = plt.subplots(nrows=4, ncols=3)
+    plt.tight_layout(pad=1, h_pad=1, w_pad=1)
+    for n in range(4, 16, 1):  # до 16-ти
+        x_points, y_points = [], []
+        for k in range(n+1):
+            x_points.append(f_x(k, n))
+            y_points.append(f_y(x_points[k]))
+            # print(n, len(x_points), len(y_points))
+        x = np.arange(-6., 6., 0.01)
+        polynom = []
+        f_points, p_points = [], []
+        for i in range(len(x)):
+            f = f_y(x[i])
+            f_points.append(f)
+
+            p = Lagrange(x_points, y_points, x[i], n+1)
+            p_points.append(p)
+
+            print(f, p)
+
+        axs[(n - 4) // 3, (n - 4) % 3].plot(x, f_points, color='blue')
+        axs[(n - 4) // 3, (n - 4) % 3].plot(x, p_points, color='red')
+        axs[(n - 4) // 3, (n - 4) % 3].set(xlabel='X')
+        axs[(n - 4) // 3, (n - 4) % 3].set(ylabel='P-f')
+        axs[(n - 4) // 3, (n - 4) % 3].set(title=str(n))
+
+    fig.set_size_inches(18.5, 10.5)
+    plt.savefig('task5_two_func.png')
