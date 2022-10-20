@@ -9,7 +9,7 @@ import math
 import matplotlib.pyplot as plt
 from scipy.integrate import quad
 a1, b1, a2, b2 = 1., -1., 0., 1.
-N = 1000
+N = 40
 
 
 def f1(x) -> float:
@@ -140,3 +140,16 @@ def run():
     plt.legend(loc='best')
     plt.title('x^(1/3)*exp(sin(x))')
     plt.savefig('page2.png')
+    plt.close()
+    diff = []
+    for i in range(len(y1arr)):
+        diff.append(y1arr[i] - y2arr[i])
+
+    plt.yscale('log')
+    plt.plot(x, diff, label='difference', color=colors[0])
+    plt.savefig('task3_dif.png')
+
+    '''
+    если бы это был просто перенос, то разница была бы константной
+    '''
+
