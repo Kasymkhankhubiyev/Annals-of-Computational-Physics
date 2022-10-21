@@ -10,9 +10,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 a, b, c, d = 10, 2, 2, 10
-x0, y0, t0 = 1, 1, 0
-mint, maxt = 0, 3
+mint, maxt = 0., 6.
 alpha = 3./4.
+
 
 
 def dif_x(x: float, y: float) -> float:
@@ -21,10 +21,10 @@ def dif_x(x: float, y: float) -> float:
 
 
 def dif_y(x: float, y: float) -> float:
-    res = float(c) * x - float(d) * x * y
+    res = float(c) * x * y - float(d) * y
     return res
 
-def runge_kutta(m):
+def runge_kutta(m, x0, y0):
     """
     y_n+1 = y_n + h*((1-alpha)*f(x,y) + alpha*f(x+h/(2*alpha), y+f(x_n, y_n)*h/(2*alpha)))
     :return:
@@ -42,11 +42,27 @@ def runge_kutta(m):
 
 
 def run() -> None:
-    N = 100
-    results = runge_kutta(N)
-
+    N = 100000
     plt.title('phase trajectory')
-    plt.plot(results[0], results[1], color='red')
-    plt.legend('best')
+
+    # x0, y0, t0 = 10, 1, 0
+    #
+    # results = runge_kutta(N, x0, y0)
+    #
+    # plt.plot(results[0], results[1], color='red')
+
+    for x0 in range(1, 21, 5):
+        for y0 in range(1, 21, 5):
+
+            results = runge_kutta(N, x0, y0)
+
+            color = (np.random.random(), np.random.random(), np.random.random())
+            plt.plot(results[0], results[1], label=str(x0) + 'vs' + str(y0), color=color)
+
+    # plt.legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+    plt.xlabel('predator')
+    plt.ylabel('prey')
     plt.savefig('task7_phase')
+
+    plt.close()
 
