@@ -62,7 +62,7 @@ def run() -> None:
     # plt.legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
     plt.xlabel('predator')
     plt.ylabel('prey')
-    plt.savefig('task7_phase')
+    plt.savefig('task7/task7_phase')
 
     plt.close()
 
