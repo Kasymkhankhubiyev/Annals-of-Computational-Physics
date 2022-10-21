@@ -117,7 +117,7 @@ def run():
         print(f_s)
 
     fig.set_size_inches(18.5, 10.5)
-    plt.savefig('task5.png')
+    plt.savefig('task5/task5.png')
 
 def run_lagrange():
     fig, axs = plt.subplots(nrows=4, ncols=3)
@@ -143,7 +143,7 @@ def run_lagrange():
         axs[(n - 4) // 3, (n - 4) % 3].set(title=str(n))
 
     fig.set_size_inches(18.5, 10.5)
-    plt.savefig('task5_lagrange.png')
+    plt.savefig('task5/task5_lagrange.png')
 
 
 def run_lagrange_two_plots():
@@ -174,4 +174,4 @@ def run_lagrange_two_plots():
         axs[(n - 4) // 3, (n - 4) % 3].set(title=str(n))
 
     fig.set_size_inches(18.5, 10.5)
-    plt.savefig('task5_two_func.png')
+    plt.savefig('task5/task5_two_func.png')
