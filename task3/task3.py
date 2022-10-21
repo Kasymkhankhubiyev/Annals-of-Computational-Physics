@@ -121,7 +121,7 @@ def run():
     plt.ylabel('Относительная ошибка')
     plt.title('1/(1+x^2)')
     plt.legend(loc='best')
-    plt.savefig('page1.png')
+    plt.savefig('task3/page1.png')
     print('\n\nСчитаем второй интеграл:')
     print('trapeze method: \n')
     y1arr = trapeze_method(a2, b2, N, f2, Integral2)
@@ -139,7 +139,7 @@ def run():
     plt.ylabel('Относительная ошибка')
     plt.legend(loc='best')
     plt.title('x^(1/3)*exp(sin(x))')
-    plt.savefig('page2.png')
+    plt.savefig('task3/page2.png')
     plt.close()
     diff = []
     for i in range(len(y1arr)):
@@ -147,7 +147,7 @@ def run():
 
     plt.yscale('log')
     plt.plot(x, diff, label='difference', color=colors[0])
-    plt.savefig('task3_dif.png')
+    plt.savefig('task3/task3_dif.png')
 
     '''
     если бы это был просто перенос, то разница была бы константной
