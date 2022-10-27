@@ -7,7 +7,9 @@ from task6 import task6
 from task7 import task7
 from task8 import task8
 from task8 import test_tas8
+from task9 import task9
+from task9 import task9_1
 
 if __name__ == '__main__':
 
-    task8.run()
+    task9_1.run()
