@@ -9,4 +9,4 @@ from task8 import task8
 
 if __name__ == '__main__':
 
-    task8.run()
+    task5.run_lagrange()

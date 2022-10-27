@@ -128,7 +128,7 @@ def run_lagrange():
             x_points.append(f_x(k, n))
             y_points.append(f_y(x_points[k]))
             #print(n, len(x_points), len(y_points))
-        x = np.arange(-6., 6., 0.01)
+        x = np.arange(-5., 5., 0.01)
         polynom = []
         f_points, p_points = [], []
         for i in range(len(x)):
@@ -136,7 +136,7 @@ def run_lagrange():
 
             p = Lagrange(x_points, y_points, x[i], n+1)
 
-            polynom.append(f - p)
+            polynom.append(p - f)
         axs[(n-4)//3, (n-4) % 3].plot(x, polynom, color='blue')
         axs[(n-4)//3, (n-4) % 3].set(xlabel='X')
         axs[(n-4)//3, (n-4) % 3].set(ylabel='P-f')
@@ -155,7 +155,7 @@ def run_lagrange_two_plots():
             x_points.append(f_x(k, n))
             y_points.append(f_y(x_points[k]))
             # print(n, len(x_points), len(y_points))
-        x = np.arange(-6., 6., 0.01)
+        x = np.arange(-5., 5., 0.01)
         polynom = []
         f_points, p_points = [], []
         for i in range(len(x)):
@@ -165,7 +165,7 @@ def run_lagrange_two_plots():
             p = Lagrange(x_points, y_points, x[i], n+1)
             p_points.append(p)
 
-            print(f, p)
+            # print(f, p)
 
         axs[(n - 4) // 3, (n - 4) % 3].plot(x, f_points, color='blue')
         axs[(n - 4) // 3, (n - 4) % 3].plot(x, p_points, color='red')
