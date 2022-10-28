@@ -27,7 +27,11 @@ class Matrix(NamedTuple):
     b: np.array
     c: np.array
 
+
 def ux0(x: float) -> float:
+    """
+    Граничное условие в начальный момент времени
+    """
     return x * (1 - x/np.float64(L))**2
 
 
@@ -52,7 +56,7 @@ def matrix_coef() -> Matrix:
     return Matrix(a=np.array(a), b=np.array(b), c=np.array(c))
 
 
-def triagonal(d):
+def triagonal(d: list) -> list:
 
     matrix = matrix_coef()
     a, b, c = matrix.a, matrix.b, matrix.c
@@ -76,14 +80,14 @@ def triagonal(d):
 
 
 def run() -> None:
+    """
+        f(x, t) = 0
+    """
     x = [x0 + i * h for i in range(N+1)]
     ux0j = [ux0(x[i]) for i in range(N+1)]  # граничные условия для разных х при t=0
 
     v = [ux0j]
 
-    """
-    f(x, t) = 0
-    """
     for t in range(T):
         d = [v[t][i] + tau/2. * (v[t][i+1] - 2*v[t][i] + v[t][i-1]) / (h**2) for i in range(1, N)]
         v.append(triagonal(d))
