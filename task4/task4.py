@@ -26,10 +26,9 @@ def J(x, m, t):
 
 
 def dJ0simpson(a, b, N, x, delta):
-    factor = np.float64(1.)
-    j0l = simpson_method(a, b, N, x+(np.float64(delta)/factor), 0)
-    j0r = simpson_method(a, b, N, x-(np.float64(delta)/factor), 0)
-    res = np.float64((j0l - j0r)/(np.float64(2.) * (np.float64(delta)/factor)))
+    j0l = simpson_method(a, b, N, x+np.float64(delta), 0)
+    j0r = simpson_method(a, b, N, x-np.float64(delta), 0)
+    res = np.float64((j0l - j0r)/(np.float64(2.) * np.float64(delta)))
     return res
 
 
@@ -49,7 +48,7 @@ def simpson_method(a, b, N, x, m) -> float:
     :return:
     """
 
-    h = (np.float64(b) - np.float64(a)) / np.float64(N)
+    h = (np.float64(b) - np.float64(a)) / np.log10(N)  # np.float64(N)
 
     s = 0
     for i in range(1, N + 1, 10 ** (int(math.log10(N)) - 1)):
@@ -57,18 +56,6 @@ def simpson_method(a, b, N, x, m) -> float:
         right = np.float64(a) + i * h
 
         s += (J(x, m, left) + J(x, m, right) + 4. * J(x, m, (right + left) / 2.)) * h / 6.
-
-    # tarr = np.linspace(np.float64(a), np.float64(b), N)#)2**9)
-    # h = (a - b)/(N)
-    # yarr = [J(x, m, t) for t in tarr]
-    # S = np.float64(0.)
-    # for i in range(1, len(yarr) - 1):
-    #     if i % 2 == 0:
-    #         factor = np.float64(2.)
-    #     else:
-    #         factor = np.float64(4.)
-    #     S += np.float64(factor * yarr[i])
-    # S = np.float64((S + yarr[0] + yarr[len(tarr)-1]) * h/np.float64(3.))
 
     return s
 
@@ -183,7 +170,7 @@ def run():
         K = pow(10, k)
         print(K)
         Ns.append(K)
-        delta = np.float64(float(b) - float(a)) / float(K)
+        delta = np.float64(float(b) - float(a)) / math.log10(K)  # float(K)
         step = 2 * np.pi / math.log10(K)
         xarr, J1s, J0s, dJ0s = [], [], [], []
         J1t, J0t, dJ0t = [], [], []

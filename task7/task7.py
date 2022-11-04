@@ -9,7 +9,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-a, b, c, d = 10, 2, 2, 10
+a, b, c, d = 500, 2, 2, 500
 mint, maxt = 0., 6.
 alpha = 3./4.
 
@@ -51,8 +51,8 @@ def run() -> None:
     #
     # plt.plot(results[0], results[1], color='red')
 
-    for x0 in range(1, 21, 5):
-        for y0 in range(1, 21, 5):
+    for x0 in range(1, 21, 7):
+        for y0 in range(1, 21, 7):
 
             results = runge_kutta(N, x0, y0)
 

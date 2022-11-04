@@ -95,12 +95,10 @@ def run():
     plt_gr.set_title('y(x)')
     plt_gr.set_xlabel('x')
     plt_err.set_ylabel('y')
-    plt_gr.plot(x, y, color='red', label='y(x)')
-    plt_gr.plot(x, sol, color='blue', label='solution y(x)', linestyle='dashed')
+    plt_gr.plot(x, y, color='red', label='calculated')
+    plt_gr.plot(x, sol, color='blue', label='analytic', linestyle='dashed')
 
     plt_err.set_title('error')
-    plt_err.set_xlabel('x')
-    plt_err.set_ylabel('y - solution')
     plt_err.plot(x, error, color='green', label='error')
 
     fig.subplots_adjust(hspace=0.3, wspace=0.3)

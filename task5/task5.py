@@ -48,9 +48,9 @@ def div_dif(x_points, y_points, n):
     div_difs = [y_points[0]]
     for i in range(1, n):
         summ = 0.
-        for j in range(i+1):
+        for j in range(i):
             frac = 1.
-            for k in range(i+1):
+            for k in range(i):
                 if k != j:
                     frac *= (x_points[j] - x_points[k])
             summ += y_points[j] / frac
@@ -94,7 +94,7 @@ def Lagrange(x_points, y_points, x, n) -> float:
 
 
 def run():
-    fig, axs = plt.subplots(nrows=4, ncols=3)
+    fig, axs = plt.subplots(nrows=5, ncols=3)
     plt.tight_layout(pad=1, h_pad=1, w_pad=1)
     for n in range(4, 16, 1):  #до 16-ти
         x_points, y_points = [], []
@@ -109,15 +109,16 @@ def run():
             f = f_y(x[i])
             f_s.append(f)
             p = newtown_ext(x_points, y_points, x[i], n+1)
-            polynom.append(p-f)
-        axs[(n-4)//3, (n-4) % 3].plot(x, polynom, color='blue')
-        axs[(n-4)//3, (n-4) % 3].set(xlabel='X')
-        axs[(n-4)//3, (n-4) % 3].set(ylabel='P-f')
+            polynom.append(p)
+        axs[(n - 4) // 3, (n - 4) % 3].plot(x, polynom, color='blue')
+        axs[(n - 4) // 3, (n - 4) % 3].plot(x, f_s, color='blue')
+        axs[(n - 4) // 3, (n - 4) % 3].set(xlabel='X')
+        axs[(n - 4) // 3, (n - 4) % 3].set(ylabel='f')
         axs[(n - 4) // 3, (n - 4) % 3].set(title=str(n))
-        print(f_s)
+        # print(f_s)
 
     fig.set_size_inches(18.5, 10.5)
-    plt.savefig('task5/task5.png')
+    plt.savefig('task5/task5_1.png')
 
 def run_lagrange():
     fig, axs = plt.subplots(nrows=4, ncols=3)
@@ -151,7 +152,7 @@ def run_lagrange_two_plots():
     plt.tight_layout(pad=1, h_pad=1, w_pad=1)
     for n in range(4, 16, 1):  # до 16-ти
         x_points, y_points = [], []
-        for k in range(n+1):
+        for k in range(n):
             x_points.append(f_x(k, n))
             y_points.append(f_y(x_points[k]))
             # print(n, len(x_points), len(y_points))
