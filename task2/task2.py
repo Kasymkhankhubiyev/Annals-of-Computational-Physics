@@ -31,6 +31,12 @@ f in [a, b]; if f(a)*f(1/2(a+b)) <= 0 --> f in [a, 1/2(a+b)];
 
 import matplotlib.pyplot as plt
 import numpy as np
+from typing import NamedTuple
+
+
+class Result(NamedTuple):
+    function: float
+    energy: float
 
 
 def f(x: float, m: float, a: float, u0: float) -> float:
@@ -52,34 +58,30 @@ def f(x: float, m: float, a: float, u0: float) -> float:
 
 
 def df(x: float, m: float, u0: float, a: float) -> float:
-    """
-    2ma^2U/sin^2((2ma^2U(1 + eps)/h^2)^1/2) / (2(2ma^2U(1 + eps)/h^2)^1/2 + 1/(1 * (1/eps - 1)^1/2)eps^2))
-    eps = -E/U
-    alfa = 2ma^2U/h^2
-    """
     # h = 6.582 * 1e-16  # eV * s
     h = 1.
 
     alfa = 2 * m * a**2 * u0 / (h * h)  # 2ma^2U0/h^2 == const
-    return alfa * 1 / pow(np.sin(np.sqrt(alfa * (1 + x/u0))), 2) / (2 * np.sqrt(alfa * (1 + x/u0))) + 1 / (
-            2 * np.sqrt(-u0/x - 1) * pow(x/u0, 2))
+    sum1 = -1 * alfa / u0 / pow(np.sin(np.sqrt(alfa * (1 + x/u0))), 2) / (2 * np.sqrt(alfa * (1 + x/u0)))
+    sum2 = - 0.5 * u0 / x**2 / np.sqrt(-u0/x - 1)
+    return sum1 + sum2
 
 
-def dichotomy_method(left: float, right: float, m: float, a: float, u0: float, tolerance: float):
+def dichotomy_method(left: float, right: float, m: float, a: float, u0: float, tolerance: float) -> Result:
     f_a = f(x=left, m=m, a=a, u0=u0)
     # f_b = f(x=right, m=m, a=a, u0=u0)
     x_i = (left + right) / 2
     f_i = f(x=x_i, m=m, a=a, u0=u0)
 
     if np.abs(f_i) < tolerance: #достигли точность
-        return f_i, x_i
+        return Result(function=f_i, energy=x_i)
     elif f_a * f_i > 0: #нет нулей
         return dichotomy_method(left=x_i, right=right, m=m, a=a, u0=u0, tolerance=tolerance)
     else:
         return dichotomy_method(left=left, right=x_i, m=m, a=a, u0=u0, tolerance=tolerance)
 
 
-def simple_iter_method(X0, tolerance):
+def simple_iter_method(x0: float, left: float, right: float, m: float, a: float, u0: float, tolerance: float) -> Result:
     """
     Метод простых итераций
     phi(x) := f(x) + x; f(x) --> phi(x) = x
@@ -95,17 +97,14 @@ def simple_iter_method(X0, tolerance):
     :param X0:
     :return:
     """
-    nextX = []
-    Xvals = []
-    lam = np.float64(0.0001)
-    X1 = X0
-    X0 -= lam * np.sign(df(X0)) * f(X0)
-    while np.abs(X1 - X0) > tolerance:
-        X1 = X0
-        X0 -= lam * np.sign(df(X0)) * f(X0)
-        Xvals.append(X0)
-        nextX.append(X1)
-    return Xvals, nextX
+    diff = df(x=x0, m=m, a=a, u0=u0)
+    _lambda = 1/diff * np.sign(diff)
+
+    x = - _lambda * f(x=x0, m=m, a=a, u0=u0)
+
+    # TODO нужно понять как выполнить точку останова!!!!
+
+    return Result(function=f(x=x0, m=m, a=a, u0=u0), energy=x0)
 
 
 def newtown_method(X0, tolerance):
@@ -156,12 +155,12 @@ def draw_graph() -> None:
 def run():
     # m, a, u0 = 0.5e6, np.float64(1), np.float64(1)  # ev, cm, eV
     m, a, u0 = 1., np.float64(1), np.float64(3)
-    tolerance = np.float64(1e-4)
+    tolerance = np.float64(1e-12)
 
     left = np.float64(-u0)
     right = np.float64(0.0)
 
-    predicted_root = predictX(left=left, right=right, tolerance=tolerance, a=a, m=m, u0=u0)
+    predicted_root = predictX(left=left, right=right, tolerance=1e-4, a=a, m=m, u0=u0)
     print(predicted_root)
 
     # fhalf = []
@@ -169,11 +168,13 @@ def run():
 
     print(f'Предположительный ответ: {predicted_root}')
 
-    dichotomy_X = dichotomy_method(left=left, right=right, m=m, a=a, u0=u0, tolerance=tolerance)
-    print(f' Ответ методом дихотомии: {dichotomy_X}')
-    #
-    # iteration_X = simple_iter_method(a)
-    # print(f' Ответ методом интераций: {iteration_X[1][-1]}')
-    #
+    dichotomy = dichotomy_method(left=left, right=right, m=m, a=a, u0=u0, tolerance=tolerance)
+    print(f' Ответ методом дихотомии: {dichotomy}')
+
+    #за начальную точку возьмем значение из метода Дихотомии
+
+    iteration_X = simple_iter_method(x0=dichotomy.energy, left=left, right=right, m=m, a=a, u0=u0, tolerance=tolerance)
+    print(f' Ответ методом интераций: {iteration_X[1][-1]}')
+
     # Newtown_X= newtown_method(a)
     # print(f' Ответ методом Ньютона:   {Newtown_X}')
