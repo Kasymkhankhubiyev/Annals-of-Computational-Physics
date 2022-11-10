@@ -44,8 +44,8 @@ def run() -> None:
     N = 100000
     plt.title('phase trajectory')
 
-    for x0 in range(1, 12, 5):
-        for y0 in range(1, 12, 5):
+    for x0 in range(1, 6, 5):
+        for y0 in range(1, 6, 5):
 
             results = runge_kutta(N, x0, y0)
 
