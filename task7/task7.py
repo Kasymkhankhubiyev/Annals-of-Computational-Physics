@@ -14,7 +14,6 @@ mint, maxt = 0., 6.
 alpha = 3./4.
 
 
-
 def dif_x(x: float, y: float) -> float:
     res = float(a) * x - float(b) * x * y
     return res
@@ -45,14 +44,8 @@ def run() -> None:
     N = 100000
     plt.title('phase trajectory')
 
-    # x0, y0, t0 = 10, 1, 0
-    #
-    # results = runge_kutta(N, x0, y0)
-    #
-    # plt.plot(results[0], results[1], color='red')
-
-    for x0 in range(1, 21, 7):
-        for y0 in range(1, 21, 7):
+    for x0 in range(1, 12, 5):
+        for y0 in range(1, 12, 5):
 
             results = runge_kutta(N, x0, y0)
 
@@ -62,7 +55,7 @@ def run() -> None:
     # plt.legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
     plt.xlabel('predator')
     plt.ylabel('prey')
-    plt.savefig('task7/task7_phase')
+    plt.savefig(f'task7/task7_phase_a_{a}.png')
 
     plt.close()
 
