@@ -103,52 +103,6 @@ def implicit_first_scheme() -> Solution:
 
     return Solution(name='imp1', u=u, v=v, x=x)
 
-def explicit_second_scheme() -> Solution:
-    """
-    y_n+3 = y_n+2 + h/12*[23*f(x_n+2, y_n+2) - 16*f(x_n+1, y_n+1) + 5*f(x_n, y_n)]
-    """
-    n = lambda_max * x_max
-    h = np.float64(x_max) / np.float64(n)
-
-    u1 = u0 + h * dif_u(u=u0, v=v0)
-    v1 = v0 + h * dif_v(u=u0, v=v0)
-    u2 = u1 + h * dif_u(u=u1, v=v1)
-    v2 = v1 + h * dif_v(u=u1, v=v1)
-    u = [u0, u1, u2]
-    v = [v0, v1, v2]
-    x = [x0, x0 + h, x0 + 2*h]
-
-    for i in range(2, n+1):
-        print(i)
-        u.append(u[i] + h/12. * (23*dif_u(u=u[i], v=v[i]) - 16*dif_u(u=u[i-1], v=v[i-1]) + 5*dif_u(u=u[i-2], v=v[i-2])))
-        v.append(v[i] + h / 12. * (
-                    23 * dif_v(u=u[i], v=v[i]) - 16 * dif_v(u=u[i - 1], v=v[i - 1]) + 5 * dif_v(u=u[i - 2],
-                                                                                                v=v[i - 2])))
-        x.append(x[0] + i * h)
-
-    return Solution(name='exp2', u=u, v=v, x=x)
-
-
-def implicit_second_scheme() -> None:
-    """
-    y_n+2 = y_n+1 + h/12*[5*f(x_n+2, y_n+2) + 8*f(x_n+1, y_n+1) - f(x_n, y_n)]
-    """
-    pass
-
-
-def explicit_third_scheme() -> None:
-    """
-    y_n+4 = y_n+3 + h/24*[55*f(x_n+3, y_n+3) - 59*f(x_n+2, y_n+2) + 37*f(x_n+1, y_n+1) - 9*f(x_n, y_n)]
-    """
-    pass
-
-
-def implicit_third_scheme() -> None:
-    """
-    y_n+3 = y_n+2 + h/24*[9*f(x_n+3, y_n+3) + 19*f(x_n+2, y_n+2) - 5*f(x_n+1, y_n+1) + f(x_n, y_n)]
-    """
-    pass
-
 
 def run() -> None:
     fig, axs = plt.subplots(nrows=1, ncols=2)
@@ -183,20 +137,4 @@ def run() -> None:
     axs[1].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
     plt.savefig('task8/task8_imp1.png')
     plt.close()
-
-    # fig, axs = plt.subplots(nrows=1, ncols=2)
-    # solution = explicit_second_scheme()
-    # axs[0].plot(solution.x, solution.u, label='u(x)', color='green')
-    # axs[0].plot(solution.x, solution.v, label='v(x)', color='blue')
-    # gt = linear_solution(solution.x)
-    # axs[0].plot(gt.x, gt.u, label='gt u(x)', color='red', linestyle='dashed')
-    # axs[0].plot(gt.x, gt.v, label='gt v(x)', color='black', linestyle='dashed')
-    # axs[0].set(title=solution.name)
-    # axs[0].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
-    # axs[1].plot(solution.x, np.array(gt.u) - np.array(solution.u), label='diff u(x)', color='green')
-    # axs[1].plot(solution.x, np.array(gt.v) - np.array(solution.v), label='diff v(x)', color='green')
-    # axs[1].set(title=solution.name)
-    # axs[1].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
-    # plt.savefig('task8/task8_exp2.png')
-    # plt.close()
 
