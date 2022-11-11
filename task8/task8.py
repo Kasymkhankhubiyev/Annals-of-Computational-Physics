@@ -13,8 +13,6 @@ u(x) = a * 2*exp(-x) + b * exp(-1000*x)
 v(x) = a * -exp(-x) + b * -exp(-1000*x)
 """
 
-# TODO сделать методом Ньютона как в методичке, чтобы сходимость была за одну итерацию
-
 import matplotlib.pyplot as plt
 import numpy as np
 import typing
