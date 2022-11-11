@@ -64,7 +64,7 @@ def df(x: float, m: float, u0: float, a: float) -> float:
 
     alfa = 2 * m * a**2 * u0 / (h * h)  # 2ma^2U0/h^2 == const
     sum1 = -1 * alfa / u0 / pow(np.sin(np.sqrt(alfa * (1 + x/u0))), 2) / (2 * np.sqrt(alfa * (1 + x/u0)))
-    sum2 = - 0.5 * u0 / x**2 / np.sqrt(-u0/x - 1)
+    sum2 = - 0.5 * u0 / (x**2 * np.sqrt(-u0/x - 1))
     return sum1 + sum2
 
 
@@ -84,7 +84,7 @@ def dichotomy_method(left: float, right: float, m: float, a: float, u0: float, t
         return dichotomy_method(left=left, right=x_i, m=m, a=a, u0=u0, tolerance=tolerance, counter=counter)
 
 
-def simple_iter_method(x0: float, m: float, a: float, u0: float, tolerance: float, counter :int) -> Result:
+def simple_iter_method(fixed: float, x0: float, m: float, a: float, u0: float, tolerance: float, counter :int) -> Result:
     """
     Метод простых итераций
     phi(x) := f(x) + x; f(x) --> phi(x) = x
@@ -100,7 +100,7 @@ def simple_iter_method(x0: float, m: float, a: float, u0: float, tolerance: floa
     :param X0:
     :return:
     """
-    diff = df(x=x0, m=m, a=a, u0=u0)
+    diff = df(x=fixed, m=m, a=a, u0=u0)
     _lambda = 1/diff  # * np.sign(diff)
 
     x = -_lambda * f(x=x0, m=m, a=a, u0=u0)
@@ -109,29 +109,20 @@ def simple_iter_method(x0: float, m: float, a: float, u0: float, tolerance: floa
         return Result(function=f(x=x0, m=m, a=a, u0=u0), energy=x0, iter_depth=counter)
     else:
         counter += 1
-        return simple_iter_method(x0=x0+x, m=m, a=a, u0=u0, tolerance=tolerance, counter=counter)
+        return simple_iter_method(fixed=fixed, x0=x0+x, m=m, a=a, u0=u0, tolerance=tolerance, counter=counter)
 
 
-def newtown_method(X0, tolerance):
+def newtown_method(x0: float, m: float, a: float, u0: float, tolerance: float, counter: int):
     """
     x_{n+1} = x_{n} - f(x_{n})/f'(x_{n})
     :return:
     """
-    nextX = []
-    Xvals = []
-    X1 = X0
-    div = 1. / df(X0)
-    X0 = X0 - f(X0) * div
-    print(div * f(X0))
-    Xvals.append(X0)
-    nextX.append(X1)
-    while np.abs(X1 - X0) > tolerance:
-        X1 = X0
-        div = 1. / df(X0)
-        X0 -= f(X0) * div
-        Xvals.append(X0)
-        nextX.append(X1)
-    return nextX, Xvals
+    _lambda = - f(x=x0, m=m, a=a, u0=u0) / df(x=x0, m=m, a=a, u0=u0)
+    if np.abs(_lambda) <= tolerance:
+        return Result(function=f(x=x0, m=m, a=a, u0=u0), energy=x0, iter_depth=counter)
+    else:
+        counter += 1
+        return newtown_method(x0=x0 + _lambda, m=m, a=a, u0=u0, tolerance=tolerance, counter=counter)
 
 
 def predictX(left: float, right: float, tolerance: float, a: float, m: float, u0: float) -> float:
@@ -180,8 +171,9 @@ def run():
     #за начальную точку возьмем значение из метода Дихотомии
 
     counter = 0
-    iteration_X = simple_iter_method(x0=predicted_root, m=m, a=a, u0=u0, tolerance=tolerance, counter=counter)
+    iteration_X = simple_iter_method(fixed=-2.391, x0=-2.391, m=m, a=a, u0=u0, tolerance=tolerance, counter=counter)
     print(f' Ответ методом интераций: {iteration_X}')
 
-    # Newtown_X= newtown_method(a)
-    # print(f' Ответ методом Ньютона:   {Newtown_X}')
+    counter = 0
+    newtown= newtown_method(x0=-2.391, m=m, a=a, u0=u0, tolerance=tolerance, counter=counter)
+    print(f' Ответ методом Ньютона:   {newtown}')

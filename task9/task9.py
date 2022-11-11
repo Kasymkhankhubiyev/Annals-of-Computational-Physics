@@ -2,106 +2,117 @@
 Методом погонки решить разностный аналог граничной задачи
 для уравнения y''=cosx на промежутке -pi/2 < x < pi/2.
 
-Рассмотреть различный варианты граничных условий (га функцию и ее производную).
+TODO Рассмотреть различный варианты граничных условий (на функцию и ее производную).
+первого и второго рода
+
+y = cos(x) + bx + c
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-Constant = float
+y0, yn = 0, 0  # граничные условия ->
+x0, xn = -np.pi/2, np.pi/2  # промежуток
 
-# задаем граничные условия
-y0, yn = 0, 1
-x0, xn = -np.pi/2., np.pi/2.
+y_0, dy_0 = 0, 0  # граничные условия ->
+y_n = 0
 
-N = 100
-h = np.float64(xn - x0)/np.float64(N)
+N = 10000  # кол-во интервалов
+h = (xn - x0) / N  # шаг
 
-a0, b0, c0 = 1, 1, 1
-
-
-def second_diff(x: float) -> float:
-    res = np.cos(x)
-    return res
+a0, b0, c0 = 0, -2, 1
 
 
-def first_diff(x: float, c0: Constant):
-    """
-    y' = sinx + c0
-    """
-    res = np.sin(x) + c0
-    return res
+def func(x):
+    return np.cos(x)
 
 
-def func(x: float, c0: Constant, c1: Constant):
-    """
-    y = -cosx + c0*x + c1
-    """
-    res = -1 * np.cos(x) + c0 * x + c1
-    return res
-
-
-def calculation_first_order_const(y_0, y_n):
-    """
-    правая прогонка
-
-    граничные условия первого рода, константные
-
-    Fi = -cos(x)
-    yi'' = y_i+1 /h^2 - y_i * 2 / h^2 + y_i-1/h^2
-    Ai = 1/h^2, Bi = 1/h^2, Ci = 2/h^2
-    n1 = y0, n2 = yn
-    alfa1 = x0, betta1 = y0
-    """
-    h = np.float64(xn - x0)/np.float64(N)
-
-    A, B, C = [], [], [2*np.float64(1)/np.float64(h*h)]
-    F = [-np.cos(x0)]
-
-    alfas, bettas = [1], [1]
-    y = [y_n]
+def matrix():
+    a, b, c, d, x = [a0], [b0], [c0], [y0], [x0]
 
     for i in range(1, N):
-        A.append(np.float64(1)/np.float64(h*h))
-        C.append(C[0])
-        B.append(np.float64(1)/np.float64(h*h))
-        F.append(- np.cos(x0 + i * h))
+        a.append(1)  # [a0, 1, 1, 1, ..., 1]
+        b.append(-2)  # [b0, -2, -2, -2, ..., -2]
+        c.append(1)  # [c0, 1, 1, 1, ..., 1]
 
-    for i in range(0, N-2):
-        alfas.append(B/(C-A*alfas[i]))
-        bettas.append((A*B - np.cos(x0 + (i+1) * h))/(C - A * alfas[i]))
+    a.append(1)
+    b.append(-2)
+    c.append(0)
 
-    for i in range(0, N-1):
-        y.append(alfas[i] * y[i] + bettas[i])
+    for i in range(1, N):
+        xi = x0 + h * i
+        d.append(h**2 * func(xi))
+        x.append(xi)
+
+    d.append(yn)  # массив y_n
+    x.append(xn)
+
+    # print(f'd matrix: {d}')
+    # print(f'x: {x}')
+
+    return a, b, c, d, x
+
+
+def tridiagonal(a, b, c, d):
+    # прямой ход метода Гаусса - исключение поддиагональных элементов ai, i =2,..,n
+    for i in range(1, N + 1):
+        xi = a[i] / b[i - 1]  # a_0/b_1
+        b[i] -= xi * c[i - 1]
+        d[i] -= xi * d[i - 1]
+
+    # print(f'b: {b}')
+    # print(f'd: {d}')
+
+    y = [i for i in range(N + 1)]
+    y[N] = d[N] / b[N]
+    """
+    y_n = d_n/b_n; x_i = (d_i - c_i * x_i+1)/b_i
+    """
+    for i in range(N - 1, -1, -1):
+        y[i] = (d[i] - c[i] * y[i + 1]) / b[i]
+    # print(f'y: {y}')
 
     return y
 
 
+def solution(x):
+    c1 = (y0 - yn + func(x0) - func(xn)) / (x0 - xn)
+    c2 = y0 + func(x0) - c1 * x0
+    return -func(x) + c1 * x + c2
 
-def run() -> None:
+def solution_2(x):
+    c1 = dy_0 - np.sin(x0)
+    c2 = y_0 + np.cos(x0) - c1 * x
+    return -func(x) + c1 * x + c2
 
-    fig, axs = plt.subplots(nrows=1, ncols=2)
+def solution_3(x):
+    c1 = dy_0 - np.sin(x0)
+    c2 = y_n + np.cos(xn) - c1 * x
+    return -func(x) + c1 * x + c2
 
-    c0 = np.float64(yn + np.cos(xn) - y0 - np.cos(x0)) / np.float64(xn - x0)
-    c1 = y0 + np.cos(x0) - c0 * x0
 
-    h = np.float64(xn - x0)/np.float64(N)
+def run():
+    a, b, c, d, x = matrix()
+    y = tridiagonal(a, b, c, d)
+    sol = [solution(i) for i in x]
+    # error = [np.abs((y[i] - sol[i])) for i in range(len(x))]
+    error = np.abs(np.array(y) - np.array(sol))
 
-    x, gt = [], []
+    fig = plt.figure(figsize=(10, 4))
 
-    for i in range(N):
-        x.append(x0 + i*h)
-        gt.append(func(x=x0+i*h, c0=c0, c1=c1))
+    plt_gr = fig.add_subplot(121)
+    plt_err = fig.add_subplot(122)
 
-    axs[0].plot(x, gt, label='analytic', color='green')
-    axs[0].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+    plt_gr.set_title('y(x)')
+    plt_gr.set_xlabel('x')
+    plt_err.set_ylabel('y')
+    plt_gr.plot(x, y, color='red', label='calculated')
+    plt_gr.plot(x, sol, color='blue', label='analytic', linestyle='dashed')
 
-    calc = calculation_first_order_const(y_0=y0, y_n=yn)
-    axs[1].plot(x, calc, color='red', label='calculated')
-    axs[1].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+    plt_err.set_title('error')
+    plt_err.plot(x, error, color='green', label='error')
 
+    fig.subplots_adjust(hspace=0.3, wspace=0.3)
+    plt_gr.legend()
+    plt_err.legend()
     plt.savefig('task9/task9.png')
-    plt.close()
-
-
-

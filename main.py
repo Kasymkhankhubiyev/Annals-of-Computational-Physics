@@ -11,4 +11,4 @@ from task10 import task10
 
 if __name__ == '__main__':
 
-    task8.run()
+    task2.run()

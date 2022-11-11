@@ -12,7 +12,6 @@ lambda2/lambda1 = 1000 -> система жесткая
 u(x) = a * 2*exp(-x) + b * exp(-1000*x)
 v(x) = a * -exp(-x) + b * -exp(-1000*x)
 """
-
 import matplotlib.pyplot as plt
 import numpy as np
 import typing
@@ -21,7 +20,7 @@ a, b, c, d = 998, 1998, -999, -1999
 x0, u0, v0 = 0, 1, 1
 lambda_max = 1000
 
-x_min, x_max = 0, 1
+x_min, x_max = 0, 0.1
 
 
 class Solution(typing.NamedTuple):
@@ -59,7 +58,7 @@ def explicit_first_scheme() -> Solution:
     y_n+1 = y_n + h*f(x_n, y_n)
     """
     x, u, v = [x0], [u0], [v0]
-    n = lambda_max * x_max
+    n = int(lambda_max * 0.05) # * x_max
     h = np.float64(x_max) / np.float64(n)
     for i in range(n+1):
         u.append(u[i] + h * dif_u(u=u[i], v=v[i]))
@@ -73,7 +72,7 @@ def implicit_first_scheme() -> Solution:
     """
     y_n+1 = y_n + h/2 * f(x_n, y_n) + h/2 * f(x_n+1, y_n+1)
     """
-    n = lambda_max * x_max
+    n = int(lambda_max * 0.05) # * x_max
     h = np.float64(x_max) / np.float64(n)
 
     A = np.matrix([[1 - h * a / 2, -h * b / 2],
@@ -101,7 +100,7 @@ def newtown():
     g = -999u - 1999v
     """
     f_u, f_v, g_u, g_v = 998, 1998, -999, -1999
-    n = lambda_max * x_max
+    n = int(lambda_max * 0.05) # * x_max
     h = np.float64(x_max) / np.float64(n)
     x = np.arange(x_min, x_max, h)
     E = np.eye(2)

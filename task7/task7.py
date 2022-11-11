@@ -6,11 +6,12 @@
 
 Методом Рунге_кутты второго порядка точности
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 
 a, b, c, d = 10, 2, 2, 10
-mint, maxt = 0., 6.
+mint, maxt = 0., 1.
 alpha = 3./4.
 
 
@@ -22,6 +23,7 @@ def dif_x(x: float, y: float) -> float:
 def dif_y(x: float, y: float) -> float:
     res = float(c) * x * y - float(d) * y
     return res
+
 
 def runge_kutta(m, x0, y0):
     """
@@ -39,7 +41,7 @@ def runge_kutta(m, x0, y0):
 
 
 def run() -> None:
-    N = 1000
+    N = 40
     plt.title('phase trajectory')
 
     colors = ['red', 'blue']
@@ -50,15 +52,15 @@ def run() -> None:
     for x0 in range(1, 6, 5):
         for y0 in range(1, 6, 5):
             results = runge_kutta(N, x0, y0)
-            # color = (np.random.random(), np.random.random(), np.random.random())
-            # plt.plot(results[0], results[1], label=str(x0) + 'vs' + str(y0), color=color)
+            color = (np.random.random(), np.random.random(), np.random.random())
+            plt.plot(results[0], results[1], label=str(x0) + 'vs' + str(y0), color=color)
             # plt.plot(t, results[0][1:], label='prey', color=colors[0])
             # plt.plot(t, results[1][1:], label='predator', color=colors[1])
 
     plt.legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
     plt.xlabel('t')
     plt.ylabel('population')
-    plt.savefig(f'task7/task7.png')
+    plt.savefig(f'task7/task7_11.png')
 
     plt.close()
 
