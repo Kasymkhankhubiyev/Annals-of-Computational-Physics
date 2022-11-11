@@ -11,11 +11,9 @@ lambda2/lambda1 = 1000 -> система жесткая
 общее решение:
 u(x) = a * 2*exp(-x) + b * exp(-1000*x)
 v(x) = a * -exp(-x) + b * -exp(-1000*x)
-
-пусть при x = 0 u(0) = v(0) = 1
-Тогда а = 2, b = -3
-
 """
+
+# TODO сделать методом Ньютона как в методичке, чтобы сходимость была за одну итерацию
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,9 +21,9 @@ import typing
 
 a, b, c, d = 998, 1998, -999, -1999
 x0, u0, v0 = 0, 1, 1
-lambda_max = 1000  # -1000
+lambda_max = 1000
 
-x_min, x_max = 0, 6
+x_min, x_max = 0, 1
 
 
 class Solution(typing.NamedTuple):
@@ -50,11 +48,11 @@ def dif_v(u: float, v: float) -> float:
 def linear_solution(x: list) -> Solution:
 
     u, v = [], []
-
+    a = u0 + v0
+    b = -(u0 + 2*v0)
     for i in range(len(x)):
-        u.append(4.0 * np.exp(-1 * x[i]) - 3.0 * np.exp(-1000*x[i]))
-        v.append(-2.0 * np.exp(-1 * x[i]) + 3.0 * np.exp(-1000*x[i]))
-
+        u.append(2.0 * a * np.exp(-1 * x[i]) + b * np.exp(-1000*x[i]))
+        v.append(-1.0 * a * np.exp(-1 * x[i]) - b * np.exp(-1000*x[i]))
     return Solution(name='gt', u=u, v=v, x=x)
 
 
@@ -63,10 +61,8 @@ def explicit_first_scheme() -> Solution:
     y_n+1 = y_n + h*f(x_n, y_n)
     """
     x, u, v = [x0], [u0], [v0]
-
     n = lambda_max * x_max
     h = np.float64(x_max) / np.float64(n)
-
     for i in range(n+1):
         u.append(u[i] + h * dif_u(u=u[i], v=v[i]))
         v.append(v[i] + h * dif_v(u=u[i], v=v[i]))
@@ -95,46 +91,68 @@ def implicit_first_scheme() -> Solution:
     for i in range(num_steps):
         y.append(C * y[i])
 
-    # y = [(y[i][0].item(), y[i][1].item()) for i in range(len(y))]
-    # print(y[40][0])
-
     u = [np.float64(y[i][0]) for i in range(len(y))]
     v = [np.float64(y[i][1]) for i in range(len(y))]
 
     return Solution(name='imp1', u=u, v=v, x=x)
 
 
-def run() -> None:
-    fig, axs = plt.subplots(nrows=1, ncols=2)
+def newtown():
+    """
+    f = 998u + 1998v
+    g = -999u - 1999v
+    """
+    f_u, f_v, g_u, g_v = 998, 1998, -999, -1999
+    n = lambda_max * x_max
+    h = np.float64(x_max) / np.float64(n)
+    x = np.arange(x_min, x_max, h)
+    E = np.eye(2)
+    J = np.matrix([[f_u, f_v], [g_u, g_v]])   # constant
+    A = np.linalg.inv(E - h*J)
 
-    solution = explicit_first_scheme()
-    axs[0].plot(solution.x, solution.u, label='u(x)', color='green')
-    axs[0].plot(solution.x, solution.v, label='v(x)', color='blue')
-    gt = linear_solution(solution.x)
+    u, v = [u0], [v0]
+
+    for i in range(len(x)):
+        res = np.matrix([[u[i]], [v[i]]]) + A * np.matrix([[h * dif_u(u=u[i], v=v[i])], [h * dif_v(u=u[i], v=v[i])]])
+        u.append(res[0, 0])
+        v.append(res[1, 0])
+    return Solution(name='Newtown', x=x, u=u, v=v)
+
+
+def run() -> None:
+    fig, axs = plt.subplots(nrows=1, ncols=3)
+
+    solution_exp = explicit_first_scheme()
+    axs[0].plot(solution_exp.x, solution_exp.u, label='u(x)', color='green')
+    axs[0].plot(solution_exp.x, solution_exp.v, label='v(x)', color='blue')
+    gt = linear_solution(solution_exp.x)
     axs[0].plot(gt.x, gt.u, label='gt u(x)', color='red', linestyle='dashed')
     axs[0].plot(gt.x, gt.v, label='gt v(x)', color='black', linestyle='dashed')
-    axs[0].set(title=solution.name)
+    axs[0].set(title=solution_exp.name)
     axs[0].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
-    axs[1].plot(solution.x, np.array(gt.u)-np.array(solution.u), label='diff u(x)', color='green')
-    axs[1].plot(solution.x, np.array(gt.v) - np.array(solution.v), label='diff v(x)', color='green')
-    axs[1].set(title=solution.name)
+
+    solution_imp = implicit_first_scheme()
+    axs[1].plot(solution_imp.x, solution_imp.u, label='u(x)', color='green')
+    axs[1].plot(solution_imp.x, solution_imp.v, label='v(x)', color='blue')
+    gt = linear_solution(solution_imp.x)
+    axs[1].plot(gt.x, gt.u, label='gt u(x)', color='red', linestyle='dashed')
+    axs[1].plot(gt.x, gt.v, label='gt v(x)', color='black', linestyle='dashed')
+    axs[1].set(title=solution_imp.name)
     axs[1].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+
+    solution_newtown = newtown()
+    axs[2].plot(solution_newtown.x, solution_newtown.u[1:], label='u(x)', color='green')
+    axs[2].plot(solution_newtown.x, solution_newtown.v[1:], label='v(x)', color='blue')
+    gt = linear_solution(solution_newtown.x)
+    axs[2].plot(gt.x, gt.u, label='gt u(x)', color='red', linestyle='dashed')
+    axs[2].plot(gt.x, gt.v, label='gt v(x)', color='black', linestyle='dashed')
+    # plt.set(title=solution_newtown.name)
+    axs[2].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+    # plt.savefig('task8/task8_newtown.png')
+
     plt.savefig('task8/task8_exp1.png')
     plt.close()
 
-    fig, axs = plt.subplots(nrows=1, ncols=2)
-    solution = implicit_first_scheme()
-    axs[0].plot(solution.x, solution.u, label='u(x)', color='green')
-    axs[0].plot(solution.x, solution.v, label='v(x)', color='blue')
-    gt = linear_solution(solution.x)
-    axs[0].plot(gt.x, gt.u, label='gt u(x)', color='red', linestyle='dashed')
-    axs[0].plot(gt.x, gt.v, label='gt v(x)', color='black', linestyle='dashed')
-    axs[0].set(title=solution.name)
-    axs[0].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
-    axs[1].plot(solution.x, np.array(gt.u) - np.array(solution.u), label='diff u(x)', color='green')
-    axs[1].plot(solution.x, np.array(gt.v) - np.array(solution.v), label='diff v(x)', color='green')
-    axs[1].set(title=solution.name)
-    axs[1].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
-    plt.savefig('task8/task8_imp1.png')
-    plt.close()
+    # results = newtown()
+    # print(results)
 
