@@ -9,7 +9,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-a, b, c, d = 500, 2, 2, 500
+a, b, c, d = 10, 2, 2, 10
 mint, maxt = 0., 6.
 alpha = 3./4.
 
@@ -30,32 +30,35 @@ def runge_kutta(m, x0, y0):
     """
     x, y = [x0], [y0]
     h = (maxt-mint)/m
-
     for i in range(m):
         x.append(x[i] + h * ((1 - alpha) * dif_x(x[i], y[i]) + alpha * dif_x(x[i] + h * dif_x(x[i], y[i]) / (2 * alpha),
                                                                              y[i] + h * dif_y(x[i], y[i]) / (2 * alpha))))
         y.append(y[i] + h * ((1 - alpha) * dif_y(x[i], y[i]) + alpha * dif_y(x[i] + h * dif_x(x[i], y[i]) / (2 * alpha),
                                                                              y[i] + h * dif_y(x[i], y[i]) / (2 * alpha))))
-
     return x, y
 
 
 def run() -> None:
-    N = 100000
+    N = 1000
     plt.title('phase trajectory')
+
+    colors = ['red', 'blue']
+
+    h = (maxt - mint) / N
+    t = np.arange(mint, maxt, h)
 
     for x0 in range(1, 6, 5):
         for y0 in range(1, 6, 5):
-
             results = runge_kutta(N, x0, y0)
+            # color = (np.random.random(), np.random.random(), np.random.random())
+            # plt.plot(results[0], results[1], label=str(x0) + 'vs' + str(y0), color=color)
+            # plt.plot(t, results[0][1:], label='prey', color=colors[0])
+            # plt.plot(t, results[1][1:], label='predator', color=colors[1])
 
-            color = (np.random.random(), np.random.random(), np.random.random())
-            plt.plot(results[0], results[1], label=str(x0) + 'vs' + str(y0), color=color)
-
-    # plt.legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
-    plt.xlabel('predator')
-    plt.ylabel('prey')
-    plt.savefig(f'task7/task7_phase_a_{a}.png')
+    plt.legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+    plt.xlabel('t')
+    plt.ylabel('population')
+    plt.savefig(f'task7/task7.png')
 
     plt.close()
 
