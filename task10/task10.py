@@ -15,15 +15,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from typing import NamedTuple
 
-N = 10
-L = 1
-T = 10
-x0, xn = 0, L
-t0, tn = 0, 1
-
-h = np.float64(xn - x0)/np.float64(N)
-tau = np.float64(tn - t0)/np.float64(T)
-
 
 class Matrix(NamedTuple):
     a: np.array
@@ -31,14 +22,14 @@ class Matrix(NamedTuple):
     c: np.array
 
 
-def ux0(x: float) -> float:
+def ux0(x: float, L: int) -> float:
     """
     Граничное условие в начальный момент времени
     """
     return x * (1 - x/np.float64(L))**2
 
 
-def matrix_coef() -> Matrix:
+def matrix_coef(tau: float, h: float, N: int) -> Matrix:
     """
     Рассчет коэфициентов матрицы для З.Дирихле
     с нулевыми граничными условиями: u(0, t) = u(L, t) = 0
@@ -59,9 +50,9 @@ def matrix_coef() -> Matrix:
     return Matrix(a=np.array(a), b=np.array(b), c=np.array(c))
 
 
-def triagonal(d: list) -> list:
+def triagonal(d: list, tau: float, h: float, N: int) -> list:
 
-    matrix = matrix_coef()
+    matrix = matrix_coef(tau=tau, h=h, N=N)
     a, b, c = matrix.a, matrix.b, matrix.c
 
     for i in range(0, N - 1):
@@ -86,20 +77,41 @@ def run() -> None:
     """
         f(x, t) = 0
     """
-    x = [x0 + i * h for i in range(N+1)]
-    ux0j = [ux0(x[i]) for i in range(N+1)]  # граничные условия для разных х при t=0
+    N = 10
+    L = 1
+    T = 10
+    x0, xn = 0, L
+    t0, tn = 0, 1
 
-    v = [ux0j]
+    # temps, Ls = [], []
 
-    for t in range(T):
-        d = [v[t][i] + tau/2. * (v[t][i+1] - 2*v[t][i] + v[t][i-1]) / (h**2) for i in range(1, N)]
-        v.append(triagonal(d))
+    fig, axs = plt.subplots(nrows=2, ncols=2)
+    plt.tight_layout(pad=1, h_pad=1, w_pad=1)
 
-    max_temp = [max(v[i]) for i in range(len(v))]
-    time = [t0 + tau * i for i in range(len(v))]
+    # for L in range(1, 100, 10):
+    #     Ls.append(L)
+    for k in range(2, 4):
+        N = 10**k
+        T = 10**(k-1)
 
-    plt.plot(time, max_temp, color='green', label='max temp')
-    plt.title('Зависимость максимальной температуры от времени')
-    plt.xlabel('t')
-    plt.ylabel('temp')
-    plt.savefig('task10/task10.png')
+        h = np.float64(xn - x0) / np.float64(N)
+        tau = np.float64(tn - t0) / np.float64(T)
+
+        x = [x0 + i * h for i in range(N+1)]
+        ux0j = [ux0(x=x[i], L=L) for i in range(N+1)]  # граничные условия для разных х при t=0
+
+        v = [ux0j]
+
+        for t in range(T):
+            d = [v[t][i] + tau/2. * (v[t][i+1] - 2*v[t][i] + v[t][i-1]) / (h**2) for i in range(1, N)]
+            v.append(triagonal(d, tau=tau, h=h, N=N))
+
+        # max_temp = np.array([max(v[i]) for i in range(len(v))])
+        max_temp = np.max(np.array(v), axis=1)
+        # temps.append(np.sum(max_temp)/len(max_temp))
+        time = [t0 + tau * i for i in range(len(v))]
+        axs[(k-2) // 2, (k-2) % 2].plot(time, max_temp, color=['blue'], label=f'N={N}, T={T}')
+
+    plt.title('Зависимость максимальной температуры от делений')
+    plt.savefig('task10/task10_N_and_T_variation.png')
+    plt.close()
