@@ -73,45 +73,61 @@ def triagonal(d: list, tau: float, h: float, N: int) -> list:
     return y
 
 
-def run() -> None:
-    """
-        f(x, t) = 0
-    """
-    N = 10
-    L = 1
-    T = 10
-    x0, xn = 0, L
-    t0, tn = 0, 1
+def solution(t: float, x: float, L: float):
+    K = 400
+    res = []
+    for k in (1, K):
+        mu = (k * np.pi)/ L
+        c_k = 4 * L * (2*np.pi*k + np.pi * k * np.cos(np.pi * k))
+        exp = np.exp((-1) * mu**2 * t)
+        sin = np.sin(mu * x)
+        res.append(c_k * exp * sin)
+    sol = np.sum(np.array(res))
+    return sol
 
-    # temps, Ls = [], []
+
+def run() -> None:
+
+    N = 10
+    L = 3
+    T = 7
+    x0, xn = 0, L
+    t0, tn = 0, T
 
     fig, axs = plt.subplots(nrows=2, ncols=2)
     plt.tight_layout(pad=1, h_pad=1, w_pad=1)
+    # plt.yscale('log')
 
-    # for L in range(1, 100, 10):
-    #     Ls.append(L)
-    for k in range(2, 4):
-        N = 10**k
-        T = 10**(k-1)
-
-        h = np.float64(xn - x0) / np.float64(N)
-        tau = np.float64(tn - t0) / np.float64(T)
-
-        x = [x0 + i * h for i in range(N+1)]
+    for n in range(1, 5):
+        t_num = 10**n
+        x = np.linspace(x0, xn, N+1)
+        # это можно перевести в numpy если объединить в одну матрицу и обрабатывать поэлементно
         ux0j = [ux0(x=x[i], L=L) for i in range(N+1)]  # граничные условия для разных х при t=0
 
         v = [ux0j]
+        h = np.float64(xn - x0) / np.float64(N)
+        tau = np.float64(tn - t0) / np.float64(t_num)
 
-        for t in range(T):
+        for t in range(t_num):
             d = [v[t][i] + tau/2. * (v[t][i+1] - 2*v[t][i] + v[t][i-1]) / (h**2) for i in range(1, N)]
             v.append(triagonal(d, tau=tau, h=h, N=N))
 
-        # max_temp = np.array([max(v[i]) for i in range(len(v))])
+        # находим макс температру по всему стержню в каждый момент времени
         max_temp = np.max(np.array(v), axis=1)
-        # temps.append(np.sum(max_temp)/len(max_temp))
-        time = [t0 + tau * i for i in range(len(v))]
-        axs[(k-2) // 2, (k-2) % 2].plot(time, max_temp, color=['blue'], label=f'N={N}, T={T}')
 
-    plt.title('Зависимость максимальной температуры от делений')
-    plt.savefig('task10/task10_N_and_T_variation.png')
+        time = np.linspace(t0, tn, t_num+1)
+        analytic = []
+        for t in time:
+            temps = []
+            for step in x:
+                temps.append(solution(t=t, x=step, L=L))
+            analytic.append(np.max(np.array(temps)))
+
+        error = np.abs(np.array(max_temp) / np.array(analytic) - 1)
+        axs[(n-1)//2, (n-1)%2].plot(time, error, color='red', label=f'error N={N}, L={L}, t={t_num}')
+        axs[(n-1)//2, (n-1)%2].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+
+    # plt.plot(time, error, color='red', label=f'error N={N}, L={L}, T={T}')
+    # plt.legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+    plt.savefig('task10/task10_L_3_errror.png')
     plt.close()
