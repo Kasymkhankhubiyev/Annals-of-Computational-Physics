@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 from typing import NamedTuple
 
 a0, a1 = 1., 0.002
-w0, w1 = 5.1, 25.5
-T, N = 2 * np.pi, 100
+w0, w1 = 5.1, 25.5/2.
+T, N = 2 * np.pi, 50
 
 
 class Result(NamedTuple):
@@ -55,19 +55,22 @@ def FFTW(t: np.array, h):
 
 def run() -> None:
     time = np.linspace(0, T, N)
-    # signal = func(time)
-    fig, axs = plt.subplots(nrows=1, ncols=2)
-    sq_window, hann_window = FFTW(time, square_window_func), FFTW(time, hann_window_func)
-    axs[0].plot(sq_window.w, sq_window.spectrum, color='green', label='square window')
-    axs[0].plot(hann_window.w, hann_window.spectrum, color='red', label='hann window')
-    axs[0].plot(hann_window.w, py_fftw(time, square_window_func), color='blue', label='gt')
-    axs[0].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
 
-    error_sq = np.abs(np.array(py_fftw(time, square_window_func) - sq_window.spectrum))
-    axs[1].plot(sq_window.w, error_sq, color='green', label='gt VS sq_win')
-    error_hann = np.abs(np.array(py_fftw(time, square_window_func) - hann_window.spectrum))
-    axs[1].plot(hann_window.w, error_hann, color='blue', label='gt VS hann_win')
-    axs[1].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+    # signal = func(time)
+    # fig, axs = plt.subplots(nrows=1, ncols=2)
+    plt.yscale('log')
+    sq_window, hann_window = FFTW(time, square_window_func), FFTW(time, hann_window_func)
+    plt.plot(sq_window.w, sq_window.spectrum, color='green', label='square window')
+    plt.plot(hann_window.w, hann_window.spectrum, color='red', label='hann window')
+    # plt.plot(hann_window.w, py_fftw(time, hann_window_func), color='blue', label='gt')
+    plt.legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+
+    # error_sq = np.abs(np.array(py_fftw(time, square_window_func) - sq_window.spectrum))
+    # axs[1].plot(sq_window.w, error_sq, color='green', label='gt VS sq_win')
+    # error_hann = np.abs(np.array(py_fftw(time, square_window_func) - hann_window.spectrum))
+    # axs[1].plot(hann_window.w, error_hann, color='blue', label='gt VS hann_win')
+    # axs[1].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
+    plt.title(f'w0={w0},  w1={w1}')
     plt.savefig('task12/signal_spectr.png')
     plt.close()
 
