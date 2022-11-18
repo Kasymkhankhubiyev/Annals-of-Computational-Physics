@@ -5,4 +5,4 @@ from task12 import task12
 
 if __name__ == '__main__':
 
-    task10.run()
+    task12.run()
