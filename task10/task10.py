@@ -10,7 +10,6 @@ u(x, 0)=x*(1 - x/L)^2
 как зависит от шага
 влияние L на сходимость, корректность метода
 """
-
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import NamedTuple
@@ -69,16 +68,19 @@ def triagonal(d: list, tau: float, h: float, N: int) -> list:
 
     y.insert(0, 0)  # u(0, t) = 0
     y.append(0)  # u(L, t) = 0
-
     return y
 
 
 def solution(t: float, x: float, L: float):
-    K = 400
+    """
+    $$u(x,t) = \sum \frac{4L(2\pi k + \pi k(-1)^k)}{\pi ^4 k^4}exp(-\mu _{k}^2 t) sin(\mu _{k} x)$$
+    $$\mu _{k} = \frac{k\pi}{L}$$
+    """
+    K = 1000
     res = []
     for k in (1, K):
         mu = (k * np.pi)/ L
-        c_k = 4 * L * (2*np.pi*k + np.pi * k * np.cos(np.pi * k))
+        c_k = 4 * L * (2*np.pi*k + np.pi * k * np.cos(np.pi * k)) / (np.pi * k)**4
         exp = np.exp((-1) * mu**2 * t)
         sin = np.sin(mu * x)
         res.append(c_k * exp * sin)
@@ -89,8 +91,8 @@ def solution(t: float, x: float, L: float):
 def run() -> None:
 
     N = 10
-    L = 3
-    T = 7
+    L = 30
+    T = 1
     x0, xn = 0, L
     t0, tn = 0, T
 
@@ -129,5 +131,5 @@ def run() -> None:
 
     # plt.plot(time, error, color='red', label=f'error N={N}, L={L}, T={T}')
     # plt.legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
-    plt.savefig('task10/task10_L_3_errror.png')
+    plt.savefig(f'task10/task10_L_{L}_errror.png')
     plt.close()
