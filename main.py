@@ -4,4 +4,4 @@ from task11 import task11
 
 if __name__ == '__main__':
 
-    task9.run()
+    task10.run()
