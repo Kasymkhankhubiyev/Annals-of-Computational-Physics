@@ -1,10 +1,15 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-N = 2
-iter_number = 2
+"""
+зависимость ошибки от шага сетки
+вид ошибки
+"""
 
-x0, xn = -10, 10
+N = 30
+iter_number = 100
+
+x0, xn = -15, 15
 h = (xn - x0) / N
 
 x_data = np.linspace(x0, xn, N)
@@ -21,7 +26,7 @@ def solution(x):
     """
     math: $\pi^{-\frac{1}{4}}exp(-\frac{x^2}{2})$
     """
-    return pow(np.pi, -1 / 4) * np.exp(- pow(x, 2) / 2)
+    return np.exp(- x**2 / 2) * pow(np.pi, -1 / 4)
 
 
 def matrix():
@@ -45,7 +50,7 @@ def tridiagonal(d):
         b[i] -= ksi * c[i - 1]
         d[i] -= ksi * d[i - 1]
 
-    y = np.array(0, N, 1, dtype=int)  # [i for i in range(N)]
+    y = [i for i in range(N)]
     y[N - 1] = d[N - 1] / b[N - 1]
 
     for i in range(N - 2, -1, -1):
@@ -70,16 +75,13 @@ def run():
     print(f'Calculated E0 = {energy}')
     print(f'Real E0 = 0.5')
 
-    fig = plt.figure(figsize=(12, 4))
-    plt_wave = fig.add_subplot(121)
-    plt_err = fig.add_subplot(122)
+    fig, axs = plt.subplots(nrows=1, ncols=2)
 
-    plt_wave.set_title(r'Wave-function')
-    plt_wave.plot(x_data, solution(x_data), color='pink', label='real solution')
-    plt_wave.plot(x_data, psi, color='purple', label=f'inverse iteration,\nN = {N},\niteration = {iter_number}')
+    x = np.linspace(x0, xn, N)
+    analytic_solution = solution(x)
 
-    plt_err.set_title('Error value')
-    plt_err.plot(x_data, solution(x_data) - np.array(psi), color='blue')
+    axs[0].plot(x, analytic_solution, color='pink', label='real analytic_solution')
+    axs[0].plot(x, psi, color='purple', label=f'inverse iteration,\nN = {N},\niteration = {iter_number}')
+    axs[1].plot(x, analytic_solution - np.array(psi), color='blue')
 
-    plt_wave.legend()
     plt.savefig('task11/task11.png')
