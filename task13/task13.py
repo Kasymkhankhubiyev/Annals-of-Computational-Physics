@@ -22,7 +22,46 @@ def _matrix(N, tau, h):
     return Matrix(a=a, b=b, c=c, d=d)
 
 
-def inverse_iteration(N, tau, h, t_steps, L):
+def _step_along_y(matrix, N, t_i, tau, ux, uy, h):
+    for j in range(1, N - 1):
+        uy[j][t_i + 1] = uy[j][t_i] + tau / 2 * (
+                    uy[j + 1][t_i] - 2 * uy[j][t_i] + uy[j - 1][t_i]) / h ** 2  # шаг по неявной схеме
+        matrix.d[j] = uy[j][t_i + 1]
+
+    for i in range(2, N):  # прямой ход
+        ksi = matrix.a[i] / matrix.b[i - 1]
+        matrix.a[i] = 0
+        matrix.b[i] = matrix.b[i] - ksi * matrix.c[i - 1]
+        matrix.d[i] = matrix.d[i] - ksi * matrix.d[i - 1]
+
+    ux[N - 2][t_i + 1] = matrix.d[N - 2] / matrix.b[N - 2]  # обратный ход по x
+
+    for i in range(N - 2, 0, -1):  # обратный ход по x
+        ux[i][t_i + 1] = (1 / matrix.b[i] * (matrix.d[i] - matrix.c[i] * ux[i + 1][t_i + 1]))
+
+    return ux, uy
+
+
+def _step_along_x(matrix, N, t_i, tau, ux, uy, h):
+    for j in range(1, N - 1):  # неявный шаг по х
+        ux[j][t_i + 1] = ux[j][t_i] + tau / 2 * (ux[j + 1][t_i] - 2 * ux[j][t_i] + ux[j - 1][t_i]) / h ** 2
+        matrix.d[j] = ux[j][t_i + 1]
+
+    for i in range(2, N):  # прямой ход по х
+        ksi = matrix.a[i] / matrix.b[i - 1]
+        matrix.a[i] = 0
+        matrix.b[i] = matrix.b[i] - ksi * matrix.c[i - 1]
+        matrix.d[i] = matrix.d[i] - ksi * matrix.d[i - 1]
+
+    uy[N - 2][t_i + 1] = matrix.d[N - 2] / matrix.b[N - 2]  # обратный ход по у
+
+    for i in range(N - 2, 0, -1):  # обратный ход по у
+        uy[i][t_i + 1] = (1 / matrix.b[i] * (matrix.d[i] - matrix.c[i] * uy[i + 1][t_i + 1]))
+
+    return ux, uy
+
+
+def localy_1d_method(N, tau, h, t_steps, L):
     # matrix = _matrix(N, tau, h)
     ux, uy = np.zeros((N, t_steps)), np.zeros((N, t_steps))
     x, y = np.linspace(-L, L, N), np.linspace(-L, L, N)
@@ -36,67 +75,23 @@ def inverse_iteration(N, tau, h, t_steps, L):
         matrix = _matrix(N, tau, h)
 
         if t_i % 2 == 0:  # делаем шаг по y
-            for j in range(1, N-1):
-                uy[j][t_i + 1] = uy[j][t_i] + tau/2 * (uy[j+1][t_i] - 2*uy[j][t_i] + uy[j-1][t_i]) / h**2  # шаг по неявной схеме
-                matrix.d[j] = uy[j][t_i + 1]
-
-            for i in range(2, N):  # прямой ход
-                ksi = matrix.a[i] / matrix.b[i - 1]
-                matrix.a[i] = 0
-                matrix.b[i] = matrix.b[i] - ksi * matrix.c[i - 1]
-                matrix.d[i] = matrix.d[i] - ksi * matrix.d[i - 1]
-
-            ux[N - 2][t_i + 1] = matrix.d[N - 2] / matrix.b[N - 2]  # обратный ход по x
-
-            for i in range(N - 2, 0, -1):  # обратный ход по x
-                ux[i][t_i + 1] = (1 / matrix.b[i] * (matrix.d[i] - matrix.c[i] * ux[i + 1][t_i + 1]))
+            ux, uy = _step_along_y(matrix=matrix, N=N, t_i=t_i, tau=tau, ux=ux, uy=uy, h=h)
 
         if t_i % 2 == 1:  # делаем шаг по x
-
-            for j in range(1, N - 1):  # неявный шаг по х
-                ux[j][t_i + 1] = ux[j][t_i] + tau / 2 * (ux[j + 1][t_i] - 2 * ux[j][t_i] + ux[j - 1][t_i]) / h ** 2
-                matrix.d[j] = ux[j][t_i + 1]
-
-            for i in range(2, N):  # прямой ход по х
-                ksi = matrix.a[i] / matrix.b[i - 1]
-                matrix.a[i] = 0
-                matrix.b[i] = matrix.b[i] - ksi * matrix.c[i - 1]
-                matrix.d[i] = matrix.d[i] - ksi * matrix.d[i - 1]
-
-            uy[N - 2][t_i + 1] = matrix.d[N - 2] / matrix.b[N - 2]  # обратный ход по у
-
-            for i in range(N - 2, 0, -1):  # обратный ход по у
-                uy[i][t_i + 1] = (1 / matrix.b[i] * (matrix.d[i] - matrix.c[i] * uy[i + 1][t_i + 1]))
+            ux, uy = _step_along_x(matrix=matrix, N=N, t_i=t_i, tau=tau, ux=ux, uy=uy, h=h)
 
         temp_origin[t_i + 1] = ux[int(N / 2), t_i + 1] * uy[int(N / 2), t_i + 1]
 
     return temp_origin
 
 
-def solve(N: int, L: int, tau: float, t: int, t_steps: int, x: np.array, y:np.array):
-    uxy0j = np.zeros((N, N))  # граничные условия для разных х, y при t=0
-    for i in range(N):
-        for j in range(N):
-            uxy0j[i][j] = uxy0(x[i], y[j])
-
-    v = [uxy0j]
-    h = x[1] - x[0]  # np.float64(xn - x0) / np.float64(N)
-
-    for t in range(t_steps):
-        # d = [v[t][i] + tau / 2. * (v[t][i + 1] - 2 * v[t][i] + v[t][i - 1]) / (h ** 2) for i in range(1, len(x) - 1)]
-        pass
-    return v
-
-
 def run():
     L, N, t = 1, 200, 1
     t_steps = 101
     x, t = np.linspace(-L, L, N), np.linspace(0, t, t_steps)
-    temps = inverse_iteration(N=N, tau=t[1]-t[0], h=x[1]-x[0], t_steps=t_steps, L=L)
+    temps = localy_1d_method(N=N, tau=t[1] - t[0], h=x[1] - x[0], t_steps=t_steps, L=L)
     plt.plot(t, temps, color='blue', label='temp in the origin')
     plt.plot(t, np.exp(-6*t), color='red', label='exp(-6x)')
     plt.plot(t, np.exp(-7*t), color='green', label='exp(-7x)')
     plt.legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
     plt.savefig('task13/temp_vs_time.png')
-
-
