@@ -91,7 +91,7 @@ def error_steps():
 
 
 def run():
-    N = 10**6  # интересно получается с четным и нечетным числом разбиений.
+    N = 10**2  # интересно получается с четным и нечетным числом разбиений.
     x = np.linspace(x0, xn, N)
     energy, psi = inverse_iteration(np.zeros(N) + 0.7, x, N)
     print(f'Calculated E0 = {energy}')

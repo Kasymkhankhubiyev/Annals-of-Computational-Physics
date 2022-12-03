@@ -1,7 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import cm
 
 from typing import NamedTuple
+
+
+# нужно изменить на треугольник
 
 
 class Matrix(NamedTuple):
@@ -12,7 +16,23 @@ class Matrix(NamedTuple):
 
 
 def uxy0(x, y, L):
-    return (1 - (x/L)**2), (1 - (y/L)**2)
+    ux, uy = (1 - ((x-0.5 * L)/(0.5*L))**2), (1 - ((y - 1/3*L)/(L - x))**2)
+    if x == 0:
+        ux = 0
+    if y == 0:
+        uy = 0
+    if x == L:
+        ux, uy = 0, 0
+    return ux, uy
+
+    # if x - 0.1 <= 0.3 and y - 0.1 <= 0:
+    #     return 1, 1
+    # else:
+    #     return 0, 0
+
+
+def u0_x(x, L):
+    pass
 
 
 def _matrix(N, tau, h):
@@ -64,12 +84,12 @@ def _step_along_x(matrix, N, t_i, tau, ux, uy, h):
 def localy_1d_method(N, tau, h, t_steps, L):
     # matrix = _matrix(N, tau, h)
     ux, uy = np.zeros((N, t_steps)), np.zeros((N, t_steps))
-    x, y = np.linspace(-L, L, N), np.linspace(-L, L, N)
+    x, y = np.linspace(0, L, N), np.linspace(0, L, N)
     for i in range(N):
-        ux[i][0], uy[i][0] = uxy0(x=x[i], y=y[i], L=L)  #заполняем граничные условия при t=0
+        ux[i][0], uy[i][0] = uxy0(x=x[i], y=(L**2 - x[i]**2)**0.5, L=L)  #заполняем граничные условия при t=0
 
     temp_origin = np.zeros(t_steps)
-    temp_origin[0] = ux[int(N / 2)][0] * uy[int(N / 2)][0]
+    temp_origin[0] = ux[int(N / 3)][0] * uy[int(N / 2)][0]
 
     for t_i in range(t_steps-1):  # шаг по временной сетке
         matrix = _matrix(N, tau, h)
@@ -80,18 +100,39 @@ def localy_1d_method(N, tau, h, t_steps, L):
         if t_i % 2 == 1:  # делаем шаг по x
             ux, uy = _step_along_x(matrix=matrix, N=N, t_i=t_i, tau=tau, ux=ux, uy=uy, h=h)
 
-        temp_origin[t_i + 1] = ux[int(N / 2), t_i + 1] * uy[int(N / 2), t_i + 1]
+        temp_origin[t_i + 1] = ux[int(N / 3), t_i + 1] * uy[int(N / 2), t_i + 1]
 
-    return temp_origin
+    return temp_origin, ux, uy
+
+
+def make_triangle():
+    pass
 
 
 def run():
-    L, N, t = 1, 200, 1
+    L, N, t = 1, 201, 1
     t_steps = 101
-    x, t = np.linspace(-L, L, N), np.linspace(0, t, t_steps)
-    temps = localy_1d_method(N=N, tau=t[1] - t[0], h=x[1] - x[0], t_steps=t_steps, L=L)
+    x, t = np.linspace(0, L, N), np.linspace(0, t, t_steps)
+    temps, ux, uy = localy_1d_method(N=N, tau=t[1] - t[0], h=x[1] - x[0], t_steps=t_steps, L=L)
     plt.plot(t, temps, color='blue', label='temp in the origin')
-    plt.plot(t, np.exp(-6*t), color='red', label='exp(-6x)')
-    plt.plot(t, np.exp(-7*t), color='green', label='exp(-7x)')
+    plt.plot(t, np.exp(-5*t) - 0.8, color='red', label='exp(-6x)')
+    plt.plot(t, np.exp(-7*t) - 0.8, color='green', label='exp(-7x)')
     plt.legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
     plt.savefig('task13/temp_vs_time.png')
+    plt.close()
+
+    # fig = plt.figure(figsize=(5, 5))
+    # ax = fig.add_subplot(2, 1, 1, projection='3d')
+    # xval = np.linspace(0, L, N)
+    # yval = np.linspace(-L, L, N)
+    # xv, yv = np.meshgrid(xval, yval)
+    # z = np.zeros((N, N))
+    # for yi in range(N):  # u(x,y,0) = (1 − x^2/L^2)(1 − y^2/L^2).
+    #     for xi in range(N):
+    #         z[xi, yi] = ux[xi, 0] * uy[yi, 0]
+    # print(z[int(N / 2), int(N / 2)])
+    # print(temps[0])
+    # surf = ax.plot_surface(xv, yv, z, rstride=5, cstride=5)
+    # ax.set_zlim(0, 1)
+    # plt.savefig('task13/3d_temps')
+    # plt.close()
