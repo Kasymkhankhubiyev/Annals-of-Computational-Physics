@@ -76,8 +76,8 @@ def calculate_fermi_level(me: me_effective, mh: mh_effective, t: Kelvin, Jd: eV,
     methods = ['dichotomy', 'newtown', 'fixed-point']
     fermi_level, counter = None, 0
 
-    nc = _calc_Nc(me, t)
-    nv = _calc_Nv(mh, t)
+    nc = calc_Nc(me, t)
+    nv = calc_Nv(mh, t)
     try:
         if method == 'dichotomy':
             fermi_level, counter = _dichotomy_method(nc=nc, nv=nv, t=t, Jd=Jd, Efpl=Efpl, Efneg=Efneg,

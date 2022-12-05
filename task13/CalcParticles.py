@@ -36,7 +36,7 @@ def calc_Ndplus(Nd: float, Ef: eV, Ed: eV, t: Kelvin):
     return ndpl
 
 
-def _calc_Nc(me: me_effective, t: Kelvin) -> float:  # Nparticle:
+def calc_Nc(me: me_effective, t: Kelvin) -> float:  # Nparticle:
     k = 1.38e-023  # J/K
     h = 1.054e-034  # kg * m /sec^2
     m0 = 9.109e-031  # kg ~ 0.511MeV
@@ -46,7 +46,7 @@ def _calc_Nc(me: me_effective, t: Kelvin) -> float:  # Nparticle:
     return Nc
 
 
-def _calc_Nv(mh: mh_effective, t: Kelvin) -> float:  # Nparticle:
+def calc_Nv(mh: mh_effective, t: Kelvin) -> float:  # Nparticle:
     k = 1.38e-023  # J/K
     h = 1.054e-034  # kg * m /sec^2
     m0 = 9.109e-031  # kg ~ 0.511MeV
