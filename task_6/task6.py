@@ -88,7 +88,7 @@ def one_shot_errors(num, errors_euler, errors_runge2, errors_runge4):
     plt.plot(num, errors_runge4, label='runge4_error', color='green')
 
     plt.legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
-    plt.savefig('task6/task6_one_shot_errors.png')
+    plt.savefig('task_6/task6_one_shot_errors.png')
 
 
 def error_trand():
@@ -131,7 +131,7 @@ def error_trand():
     axs[2].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
 
     fig.set_size_inches(10.5, 6.5)
-    plt.savefig('task6/task6_errors.png')
+    plt.savefig('task_6/task6_errors.png')
 
     fig.clear()
     plt.close(fig)
@@ -191,7 +191,7 @@ def run():
     axs[0, 2].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
 
     fig.set_size_inches(10.5, 6.5)
-    plt.savefig('task6/task6.png')
+    plt.savefig('task_6/task_6.png')
 
     fig.clear()
     plt.close(fig)

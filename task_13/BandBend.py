@@ -1,5 +1,5 @@
 import numpy as np
-from task13.exceptions import CantMatchMethod
+from task_13.exceptions import CantMatchMethod
 
 """
 math: $\sqrt{\frac{\epsilon \phi_s N_d}{2 \pi e^2}} = N_as \frac{1}{1 + exp(\frac{Eas + \phi_s + E_f}{kT})} + 

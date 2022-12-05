@@ -99,4 +99,4 @@ def run():
     fig.subplots_adjust(hspace=0.3, wspace=0.3)
     plt_ex.legend()
     plt_im.legend()
-    plt.savefig('task8/test8_exp1.png')
+    plt.savefig('task_8/test8_exp1.png')

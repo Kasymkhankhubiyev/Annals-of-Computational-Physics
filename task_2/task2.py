@@ -140,7 +140,7 @@ def predictX(left: float, right: float, tolerance: float, a: float, m: float, u0
     plt.ylim(-10, 10)
 
     plt.grid()
-    plt.savefig('task2/original_function.png')
+    plt.savefig('task_2/original_function.png')
     return root
 
 

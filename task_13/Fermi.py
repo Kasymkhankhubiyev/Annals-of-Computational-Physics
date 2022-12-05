@@ -1,7 +1,7 @@
 import numpy as np
 from typing import NamedTuple
-from task13.exceptions import CantMatchMethod
-from task13.CalcParticles import *
+from task_13.exceptions import CantMatchMethod
+from task_13.CalcParticles import *
 
 me_effective = float
 mh_effective = float

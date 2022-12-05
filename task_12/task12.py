@@ -71,6 +71,6 @@ def run() -> None:
     # axs[1].plot(hann_window.w, error_hann, color='blue', label='gt VS hann_win')
     # axs[1].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
     plt.title(f'w0={w0},  w1={w1}')
-    plt.savefig('task12/signal_spectr.png')
+    plt.savefig('task_12/signal_spectr.png')
     plt.close()
 
