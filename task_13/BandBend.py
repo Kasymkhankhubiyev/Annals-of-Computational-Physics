@@ -1,5 +1,5 @@
 import numpy as np
-from task_13.exceptions import CantMatchMethod
+from task_13.exceptions import CantMatchMethod, CantRunDichotomyMethod
 
 
 def bend_function(epsilon: float, phi: float, Nd: float, Nas: float, Eas: float, Ef: float, t: float, Eout: float):
@@ -14,31 +14,39 @@ def bend_function(epsilon: float, phi: float, Nd: float, Nas: float, Eas: float,
     return w - n_as
 
 
-def _dichotomy_method():
+def _dichotomy_method(epsilon: float, phi0: float, phi1: float, nd: float, n_as: float, e_as: float, e_f: float,
+                      t: float, e_out: float, counter: int, tolerance=1e-7):
     return 0, 0
 
 
-def _fixed_point_method():
+def _fixed_point_method(epsilon: float, phi: float, nd: float, n_as: float, e_as: float, e_f: float, t: float,
+                        e_out: float, count: int,  tolerance=1e-7):
     pass
 
 
-def _newtown_method():
+def _newtown_method(epsilon: float, phi: float, nd: float, n_as: float, e_as: float, e_f: float, t: float,
+                    e_out: float, count: int, tolerance=1e-7):
     pass
 
 
-def _secant_method():
+def _secant_method(epsilon: float, phi: float, nd: float, n_as: float, e_as: float, e_f: float, t: float,
+                   e_out: float, counter: int, tolerance=1e-7):
     pass
 
 
 def calculate_band_bend(epsilon: float, Nd: float, t: float, Nas: float, Eas: float, Eout: float, method: str,
-                        tolerance=1e-7) -> tuple:
+                        Ef: float, phi0: float, tolerance=1e-7, phi1=None) -> tuple:
 
     methods = ['dichotomy', 'newtown', 'fixed-point']
     bend, counter = None, 0
 
     try:
         if method == 'dichotomy':
-            bend, counter = _dichotomy_method()
+            if phi1 is not None and phi1 > phi0:
+                bend, counter = _dichotomy_method(epsilon=epsilon, phi0=phi0, phi1=phi1, nd=Nd, t=t, n_as=Nas, e_as=Eas,
+                                                  e_f=Ef, e_out=Eout, tolerance=tolerance, counter=counter)
+            else:
+                raise CantRunDichotomyMethod(phi0=phi0, phi1=phi1)
         elif method == 'newtown':
             pass
         elif method == 'fixed-point':
@@ -50,4 +58,6 @@ def calculate_band_bend(epsilon: float, Nd: float, t: float, Nas: float, Eas: fl
         return bend, counter
 
     except CantMatchMethod as e:
+        print(e.args)
+    except CantRunDichotomyMethod as e:
         print(e.args)
