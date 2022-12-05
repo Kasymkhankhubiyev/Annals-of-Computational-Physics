@@ -40,4 +40,4 @@ $W = \sqrt{\frac{\epsilon\phi_{s}}{2\pi e^2 N_{d}}}$, поверхностный
 Изгиб зон $\phi_{s}$ ищем из равенства $\sqrt{\frac{\epsilon\phi_{s}N_{d0}}{2\pi e^2}} = N_{as}\frac{1}{1 + e^\frac{E_{as}+\phi_{s}-E_{f}}{kT}}$
 
 При наличии внешнего поля $E_{out}$ уравнение принимает вид:
-$\sqrt{\frac{\epsilon\phi_{s}N_{d0}}{2\pi e^2}} = N_{as}\frac{1}{1 + e^\frac{E_{as}+\phi_{s}-E_{f}}{kT}} + \frac{E_out}{4\pi e}$
+$\sqrt{\frac{\epsilon\phi_{s}N_{d0}}{2\pi e^2}} = N_{as}\frac{1}{1 + e^\frac{E_{as}+\phi_{s}-E_{f}}{kT}} + \frac{E_{out}}{4\pi e}$
