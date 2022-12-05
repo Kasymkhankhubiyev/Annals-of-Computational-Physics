@@ -86,7 +86,7 @@ def error_steps():
     axs[0].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
     axs[1].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
 
-    plt.savefig('task11/task11_error_dependence.png')
+    plt.savefig('task_11/task11_error_dependence.png')
 
 
 
@@ -107,7 +107,7 @@ def run():
     axs[0].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
     axs[1].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
 
-    plt.savefig(f'task11/task11_[{x0},{xn}].png')
+    plt.savefig(f'task_11/task11_[{x0},{xn}].png')
     # error_steps()
 
     """
