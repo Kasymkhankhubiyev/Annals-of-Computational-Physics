@@ -145,9 +145,9 @@ def run() -> None:
     axs[2].plot(gt.x, gt.v, label='gt v(x)', color='black', linestyle='dashed')
     # plt.set(title=solution_newtown.name)
     axs[2].legend(fontsize=7, ncol=1, facecolor='oldlace', edgecolor='r')
-    # plt.savefig('task_8/task8_newtown.png')
+    # plt.savefig('task8/task8_newtown.png')
 
-    plt.savefig('task_8/task8_exp1.png')
+    plt.savefig('task8/task8_exp1.png')
     plt.close()
 
     # results = newtown()

@@ -131,7 +131,7 @@ def run():
 
     fig.set_size_inches(11.5, 6.5)
     plt.legend(loc='best')
-    plt.savefig('task_4/task4simps.png')
+    plt.savefig('task4/task4simps.png')
 
     plt.close()
     # fig, axs = plt.subplots(nrows=1, ncols=3)
@@ -161,7 +161,7 @@ def run():
 
     # fig.set_size_inches(11.5, 6.5)
     # plt.legend(loc='best')
-    # plt.savefig('task_4/task4trapeze.png')
+    # plt.savefig('task4/task4trapeze.png')
     # plt.close()
 
     err = []
@@ -194,7 +194,7 @@ def run():
     plt.xlabel('Кол-во делений')
     plt.ylabel('Ошибка')
     #plt.legend(loc='best')
-    plt.savefig('task_4/task4error1000iter.png')
+    plt.savefig('task4/task4error1000iter.png')
 
 
 
