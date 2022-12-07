@@ -1,5 +1,5 @@
 import numpy as np
-from task_13.exceptions import CantMatchMethod, CantRunDichotomyMethod
+from exceptions import CantMatchMethod, CantRunDichotomyMethod
 
 
 def _bend_function(epsilon: float, phi: float, Nd: float, Nas: float, Eas: float,
@@ -16,7 +16,7 @@ def _bend_function(epsilon: float, phi: float, Nd: float, Nas: float, Eas: float
 
 
 def _diff_funcrtion(epsilon: float, phi: float, Nd: float, Nas: float, Eas: float,
-                    Ef: float, t: float, Eout: float) -> float:
+                    Ef: float, t: float) -> float:
     """
     returns a value of the derivative function in the given point.
 
@@ -59,14 +59,30 @@ def _dichotomy_method(epsilon: float, phi0: float, phi1: float, nd: float, n_as:
                                  e_out=e_out, counter=counter, tolerance=tolerance)
 
 
-def _fixed_point_method(epsilon: float, phi: float, nd: float, n_as: float, e_as: float, e_f: float, t: float,
+def _fixed_point_method(epsilon: float, phi: float, phi_fixed: float, nd: float, n_as: float, e_as: float, e_f: float, t: float,
                         e_out: float, count: int,  tolerance=1e-7):
-    pass
+    diff = _diff_funcrtion(epsilon=epsilon, phi=phi_fixed, Nd=nd, Nas=n_as, Eas=e_as, Ef=e_f, t=t)
+    _lambda = 1/diff
+
+    phi_i = -_lambda * _bend_function(epsilon=epsilon, phi=phi, Nd=nd, Nas=n_as, Eas=e_as, Ef=e_f, t=t, Eout=e_out)
+
+    if np.abs(phi_i) <= tolerance:
+        return phi_i, count
+    else:
+        return _fixed_point_method(epsilon=epsilon, phi=phi+phi_i, phi_fixed=phi_fixed, nd=nd, n_as=n_as, e_as=e_as,
+                                   e_f=e_f, t=t, e_out=e_out, count=count+1, tolerance=tolerance)
 
 
 def _newtown_method(epsilon: float, phi: float, nd: float, n_as: float, e_as: float, e_f: float, t: float,
                     e_out: float, count: int, tolerance=1e-7):
-    pass
+    _lambda = -_bend_function(epsilon=epsilon, phi=phi, Nd=nd, Nas=n_as, Eas=e_as, Ef=e_f, t=t, Eout=e_out) / \
+              _diff_funcrtion(epsilon=epsilon, phi=phi, Nd=nd, Nas=n_as, Eas=e_as, Ef=e_f, t=t)
+
+    if np.abs(_lambda) <= tolerance:
+        return phi, count
+    else:
+        return _newtown_method(epsilon=epsilon, phi=phi+_lambda, nd=nd, n_as=n_as, e_as=e_as, e_f=e_f, t=t, e_out=e_out,
+                               count=count + 1, tolerance=tolerance)
 
 
 def _secant_method(epsilon: float, phi: float, nd: float, n_as: float, e_as: float, e_f: float, t: float,
@@ -77,7 +93,7 @@ def _secant_method(epsilon: float, phi: float, nd: float, n_as: float, e_as: flo
 def calculate_band_bend(epsilon: float, Nd: float, t: float, Nas: float, Eas: float, Eout: float, method: str,
                         Ef: float, phi0: float, tolerance=1e-7, phi1=None) -> tuple:
 
-    methods = ['dichotomy', 'newtown', 'fixed-point']
+    methods = ['dichotomy', 'newtown', 'fixed-point', 'secant']
     bend, counter = None, 0
 
     try:
@@ -87,9 +103,13 @@ def calculate_band_bend(epsilon: float, Nd: float, t: float, Nas: float, Eas: fl
                                                   e_f=Ef, e_out=Eout, tolerance=tolerance, counter=counter)
             else:
                 raise CantRunDichotomyMethod(phi0=phi0, phi1=phi1)
-        elif method == 'newtown':
-            pass
         elif method == 'fixed-point':
+            bend, counter = _fixed_point_method(epsilon=epsilon, phi=phi0, phi_fixed=phi0, nd=Nd, n_as=Nas,
+                                                e_as=Eas, e_f=Ef, e_out=Eout, count=counter, tolerance=tolerance, t=t)
+        elif method == 'newtown':
+            bend, counter = _newtown_method(epsilon=epsilon, phi=phi0, nd=Nd, n_as=Nas, e_as=Eas, e_f=Ef, t=t,
+                                            e_out=Eout, count=counter, tolerance=tolerance)
+        elif method == 'secant':
             pass
         else:
             raise CantMatchMethod(message=method, methods=methods)

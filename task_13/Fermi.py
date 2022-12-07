@@ -1,7 +1,7 @@
 import numpy as np
 from typing import NamedTuple
-from task_13.exceptions import CantMatchMethod
-from task_13.CalcParticles import *
+from exceptions import CantMatchMethod
+from CalcParticles import *
 
 me_effective = float
 mh_effective = float
@@ -73,7 +73,7 @@ def calculate_fermi_level(me: me_effective, mh: mh_effective, t: Kelvin, Jd: eV,
     :param method: метод поиска уровня ферми
     :return:
     """
-    methods = ['dichotomy', 'newtown', 'fixed-point']
+    methods = ['dichotomy', 'newtown', 'fixed-point', 'secant']
     fermi_level, counter = None, 0
 
     nc = calc_Nc(me, t)
@@ -85,6 +85,8 @@ def calculate_fermi_level(me: me_effective, mh: mh_effective, t: Kelvin, Jd: eV,
         elif method == 'newtown':
             pass
         elif method == 'fixed-point':
+            pass
+        elif method == 'secant':
             pass
         else:
             raise CantMatchMethod(message=method, methods=methods)
