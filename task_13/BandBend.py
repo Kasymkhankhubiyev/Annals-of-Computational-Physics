@@ -1,17 +1,21 @@
 import numpy as np
-from exceptions import CantMatchMethod, CantRunDichotomyMethod
+from task_13.exceptions import CantMatchMethod, CantRunDichotomyMethod
+# from fompy.constants import e
 
 
 def _bend_function(epsilon: float, phi: float, Nd: float, Nas: float, Eas: float,
                    Ef: float, t: float, Eout: float) -> float:
     """
-    :math: $\sqrt{\frac{\epsilon \phi_s N_d}{2 \pi e^2}} = N_as \frac{1}{1 + exp(\frac{Eas + \phi_s + E_f}{kT})} +
-            \frac{E_{out}}{4\pi e}$
+    :math: $\sqrt{\frac{\epsilon \phi_s N_d}{2 \pi e^2}} =
+            N_as \frac{1}{1 + exp(\frac{Eas + \phi_s + E_f}{kT})} + \frac{E_{out}}{4\pi e}$
     """
-    k = 1  # Boltzmann constant
-    e = 1  # electron charge
-    n_as = Nas / (1. + np.exp((Eas + phi + Ef) / (k * t))) + Eout / (4 * np.pi * e)
-    w = (epsilon * phi * Nd / (2 * np.pi * e**2)) ** 0.5
+    # eV = 1.60218e-12  # 1 eV = 1.60218e-12 arg
+    k = 1.381e-16  # Boltzmann constant arg/K
+    # e = 4.803e-10  # electron charge
+    e, eV = 1, 1
+    n_as = Nas * (1. / (1. + np.exp((Eas + phi - Ef) * eV / (k * t)))) + Eout * 3.3 * 1e-5 / (4 * np.pi * e)
+    w = (epsilon * phi * eV * Nd / (2 * np.pi * e**2)) ** 0.5
+    print(w, n_as)
     return w - n_as
 
 
@@ -32,11 +36,12 @@ def _diff_funcrtion(epsilon: float, phi: float, Nd: float, Nas: float, Eas: floa
     :param Eout:
     :return: dw - dN_as_plus
     """
-    k = 1  # Boltzmann constant
-    e = 1  # electron charge
-    diff_n_as = -1 * Nas / (1. + np.exp((Eas + phi + Ef) / (k * t)))**2 * \
-                np.exp((Eas + phi + Ef) / (k * t)) * (1 / (k * t))
-    diff_w = 0.5 * epsilon * Nd / (2 * np.pi * e**2) / (epsilon * phi * Nd / (2 * np.pi * e**2)) ** 0.5
+    eV = 1.60218e-12  # 1 eV = 1.60218e-12 arg
+    k = 1.381e-16  # Boltzmann constant
+    e = 4.803e-10  # electron charge
+    diff_n_as = -1 * Nas / (1. + np.exp((Eas + phi + Ef) * eV / (k * t)))**2 * \
+                np.exp((Eas + phi * eV + Ef) / (k * t)) * (1 / (k * t))
+    diff_w = 0.5 * epsilon * Nd / (2 * np.pi * e**2) / (epsilon * phi * eV * Nd / (2 * np.pi * e**2)) ** 0.5
 
     return diff_w - diff_n_as
 
@@ -49,14 +54,19 @@ def _dichotomy_method(epsilon: float, phi0: float, phi1: float, nd: float, n_as:
     phi_i = (phi0 + phi1) / 2
     f_i = _bend_function(epsilon=epsilon, phi=phi_i, Nd=nd, Nas=n_as, Eas=e_as, Ef=e_f, t=t, Eout=e_out)
 
+    # print(f_a, f_i)
     if np.abs(f_i) < tolerance:  # достигли точность
         return phi_i, counter
     elif f_a * f_i > 0:  # нет нулей
         return _dichotomy_method(epsilon=epsilon, phi0=phi_i, phi1=phi1, nd=nd, n_as=n_as, e_as=e_as, e_f=e_f, t=t,
                                  e_out=e_out, counter=counter, tolerance=tolerance)
+        # return _dichotomy_method(epsilon=epsilon, phi0=phi1, phi1=phi_i, nd=nd, n_as=n_as, e_as=e_as, e_f=e_f, t=t,
+        #                          e_out=e_out, counter=counter, tolerance=tolerance)
     else:
         return _dichotomy_method(epsilon=epsilon, phi0=phi0, phi1=phi_i, nd=nd, n_as=n_as, e_as=e_as, e_f=e_f, t=t,
                                  e_out=e_out, counter=counter, tolerance=tolerance)
+        # return _dichotomy_method(epsilon=epsilon, phi0=phi_i, phi1=phi1, nd=nd, n_as=n_as, e_as=e_as, e_f=e_f, t=t,
+        #                          e_out=e_out, counter=counter, tolerance=tolerance)
 
 
 def _fixed_point_method(epsilon: float, phi: float, phi_fixed: float, nd: float, n_as: float, e_as: float, e_f: float, t: float,
@@ -114,7 +124,7 @@ def calculate_band_bend(epsilon: float, Nd: float, t: float, Nas: float, Eas: fl
         else:
             raise CantMatchMethod(message=method, methods=methods)
 
-        print(f'Fermi level = {bend}, \t needed {counter} iterations')
+        print(f'bend width = {bend}, \t needed {counter} iterations')
         return bend, counter
 
     except CantMatchMethod as e:

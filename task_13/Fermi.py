@@ -1,5 +1,4 @@
 import numpy as np
-from typing import NamedTuple
 from exceptions import CantMatchMethod
 from CalcParticles import *
 
