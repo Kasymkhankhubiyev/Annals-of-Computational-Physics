@@ -14,3 +14,10 @@ class CantRunDichotomyMethod(Exception):
             f'with wrong borders: [{phi0}, {phi1}]\t'
             f'req: [a, b]: a < b'
         )
+
+
+class CatchZeroDelta(Exception):
+    def __init__(self, phi0, phi1):
+        super().__init__(
+            f'Delta cannot be equal zero'
+        )

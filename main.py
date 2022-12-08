@@ -20,10 +20,15 @@ if __name__ == '__main__':
 
     Si = Semiconductor(me=0.36, mh=0.49, Jd=0.045, E_g=1.12, Nd=1e17, Nas=1e8, Eas=0.1, epsilon=11.7, E_f=1.)
 
-    phi = calculate_band_bend(epsilon=Si.epsilon, Nd=Si.Nd, t=300, Nas=Si.Nas, Eas=Si.Eas, Eout=0,
-                                       Ef=Si.E_f, phi0=0, phi1=0.5, method='dichotomy', tolerance=1e-7)
+    phi_dichotomy = calculate_band_bend(epsilon=Si.epsilon, Nd=Si.Nd, t=300, Nas=Si.Nas, Eas=Si.Eas, Eout=0,
+                                        Ef=Si.E_f, phi0=0, phi1=0.5, method='dichotomy', tolerance=1e-7)
 
-    phi = calculate_band_bend(epsilon=Si.epsilon, Nd=Si.Nd, t=300, Nas=Si.Nas, Eas=Si.Eas, Eout=0,
-                              Ef=Si.E_f, phi0=0.05, method='fixed-point', tolerance=1e-7)
+    phi_fixed_point = calculate_band_bend(epsilon=Si.epsilon, Nd=Si.Nd, t=300, Nas=Si.Nas, Eas=Si.Eas, Eout=0,
+                                          Ef=Si.E_f, phi0=0.05, method='fixed-point', tolerance=1e-7)
 
-    print(11)
+    phi_newtown = calculate_band_bend(epsilon=Si.epsilon, Nd=Si.Nd, t=300, Nas=Si.Nas, Eas=Si.Eas, Eout=0,
+                                      Ef=Si.E_f, phi0=0.05, method='newtown', tolerance=1e-7)
+
+    phi_secant = calculate_band_bend(epsilon=Si.epsilon, Nd=Si.Nd, t=300, Nas=Si.Nas, Eas=Si.Eas, Eout=0,
+                                     Ef=Si.E_f, phi0=0.05, method='secant', tolerance=1e-7, delta=1e-2)
+
