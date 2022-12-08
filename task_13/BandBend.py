@@ -13,9 +13,9 @@ def _bend_function(epsilon: float, phi: float, Nd: float, Nas: float, Eas: float
     k = 1.381e-16  # Boltzmann constant arg/K
     # e = 4.803e-10  # electron charge
     e, eV = 1, 1
-    n_as = Nas * (1. / (1. + np.exp((Eas + phi - Ef) * eV / (k * t)))) + Eout * 3.3 * 1e-5 / (4 * np.pi * e)
+    n_as = Nas * (1. / (1. + np.exp((Eas + phi - Ef) * eV / (k * 6.24e11 * t)))) + Eout * 3.3 * 1e-5 / (4 * np.pi * e)
     w = (epsilon * phi * eV * Nd / (2 * np.pi * e**2)) ** 0.5
-    print(w, n_as)
+    # print(w, n_as)
     return w - n_as
 
 
@@ -36,11 +36,11 @@ def _diff_funcrtion(epsilon: float, phi: float, Nd: float, Nas: float, Eas: floa
     :param Eout:
     :return: dw - dN_as_plus
     """
-    eV = 1.60218e-12  # 1 eV = 1.60218e-12 arg
-    k = 1.381e-16  # Boltzmann constant
-    e = 4.803e-10  # electron charge
-    diff_n_as = -1 * Nas / (1. + np.exp((Eas + phi + Ef) * eV / (k * t)))**2 * \
-                np.exp((Eas + phi * eV + Ef) / (k * t)) * (1 / (k * t))
+    # eV = 1.60218e-12  # 1 eV = 1.60218e-12 arg
+    k = 1.381e-16  # Boltzmann constant  arg/K
+    e, eV = 1, 1  # electron charge
+    diff_n_as = -1 * (Nas / (1. + np.exp((Eas + phi - Ef) * eV / (k * 6.24e11 * t)))**2) * \
+                np.exp((Eas + phi * eV - Ef) / (k * 6.24e11 * t)) * (1 / (k * 6.24e11 * t))
     diff_w = 0.5 * epsilon * Nd / (2 * np.pi * e**2) / (epsilon * phi * eV * Nd / (2 * np.pi * e**2)) ** 0.5
 
     return diff_w - diff_n_as
@@ -72,12 +72,15 @@ def _dichotomy_method(epsilon: float, phi0: float, phi1: float, nd: float, n_as:
 def _fixed_point_method(epsilon: float, phi: float, phi_fixed: float, nd: float, n_as: float, e_as: float, e_f: float, t: float,
                         e_out: float, count: int,  tolerance=1e-7):
     diff = _diff_funcrtion(epsilon=epsilon, phi=phi_fixed, Nd=nd, Nas=n_as, Eas=e_as, Ef=e_f, t=t)
+    # print(f'differencial: {diff}')
     _lambda = 1/diff
+    # print((f'lambda: {_lambda}'))
 
     phi_i = -_lambda * _bend_function(epsilon=epsilon, phi=phi, Nd=nd, Nas=n_as, Eas=e_as, Ef=e_f, t=t, Eout=e_out)
+    # print(f'phi_i: {phi_i}')
 
-    if np.abs(phi_i) <= tolerance:
-        return phi_i, count
+    if np.abs(_bend_function(epsilon=epsilon, phi=phi, Nd=nd, Nas=n_as, Eas=e_as, Ef=e_f, t=t, Eout=e_out)) <= tolerance:
+        return phi, count
     else:
         return _fixed_point_method(epsilon=epsilon, phi=phi+phi_i, phi_fixed=phi_fixed, nd=nd, n_as=n_as, e_as=e_as,
                                    e_f=e_f, t=t, e_out=e_out, count=count+1, tolerance=tolerance)
@@ -98,6 +101,10 @@ def _newtown_method(epsilon: float, phi: float, nd: float, n_as: float, e_as: fl
 def _secant_method(epsilon: float, phi: float, nd: float, n_as: float, e_as: float, e_f: float, t: float,
                    e_out: float, counter: int, tolerance=1e-7):
     pass
+
+
+def bend_methods() -> list:
+    return ['dichotomy', 'newtown', 'fixed-point', 'secant']
 
 
 def calculate_band_bend(epsilon: float, Nd: float, t: float, Nas: float, Eas: float, Eout: float, method: str,
