@@ -1,6 +1,5 @@
 import numpy as np
-from task_13.exceptions import CantMatchMethod, CantRunDichotomyMethod, CatchZeroDelta
-# from fompy.constants import e
+from exceptions import CantMatchMethod, CantRunDichotomyMethod, CatchZeroDelta
 
 
 def _bend_function(epsilon: float, phi: float, Nd: float, Nas: float, Eas: float,
@@ -189,7 +188,7 @@ def _secant_method(epsilon: float, phi_0: float, nd: float, n_as: float, e_as: f
             return _secant_method(epsilon=epsilon, phi_0=phi_0, nd=nd, n_as=n_as, e_as=e_as, e_f=e_f, t=t, e_out=e_out,
                                   counter=counter+1, tolerance=tolerance, phi_1=phi_)
         else:
-            raise CantMatchMethod
+            raise CatchZeroDelta
 
 
 def bend_methods() -> list:
