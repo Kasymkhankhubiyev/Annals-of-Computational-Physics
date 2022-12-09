@@ -1,5 +1,5 @@
 import numpy as np
-from exceptions import CantMatchMethod, CantRunDichotomyMethod, CatchZeroDelta
+from task_13.exceptions import CantMatchMethod, CantRunDichotomyMethod, CatchZeroDelta
 
 
 def _bend_function(epsilon: float, phi: float, Nd: float, Nas: float, Eas: float,
@@ -220,7 +220,7 @@ def calculate_band_bend(epsilon: float, Nd: float, t: float, Nas: float, Eas: fl
         else:
             raise CantMatchMethod(message=method, methods=methods)
 
-        print(f'bend width = {bend}, \t needed {counter} iterations')
+        print(f'method: [{method}]\t bend width = {bend}, \t needed {counter} iterations')
         return bend, counter
 
     except CantMatchMethod as e:

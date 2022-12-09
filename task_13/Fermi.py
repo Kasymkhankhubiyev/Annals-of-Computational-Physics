@@ -1,6 +1,6 @@
 import numpy as np
-from exceptions import CantMatchMethod, CatchZeroDelta, CantRunDichotomyMethod
-from CalcParticles import *
+from task_13.exceptions import CantMatchMethod, CatchZeroDelta, CantRunDichotomyMethod
+from task_13.CalcParticles import *
 
 me_effective = float
 mh_effective = float
@@ -24,8 +24,8 @@ def _count_Q(n: float, p: float, Nd: float) -> float:
 
 def _balance_function(nc: float, nv: float, nd: float, t: Kelvin, e_f: eV, e_c: eV, e_v: eV, e_d: eV) -> float:
     """
-    :math: $n=N_d^+ + p$
-    :math: $N_c \factor exp(\frac{E_f - E_c}{kT}) - N_v \factor exp(\frac{E_v-E_f}{kT}) - N_d \factor
+    :math: $Q=n - (N_d^+ + p)$
+    :math: $Q = N_c \factor exp(\frac{E_f - E_c}{kT}) - N_v \factor exp(\frac{E_v-E_f}{kT}) - N_d \factor
             \frac{1}{1+0.5exp(\frac{E_f - E_d}{kT})}$
     :param nc: concentration of electrons
     :param nv: concentration of holes
@@ -42,11 +42,13 @@ def _balance_function(nc: float, nv: float, nd: float, t: Kelvin, e_f: eV, e_c: 
     n = nc * np.exp((e_f - e_c) / (k * 6.24e11 * t))
     p = nv * np.exp((e_v - e_f) / (k * 6.24e11 * t))
     nd_plus = nd / (1. + 0.5 * np.exp((e_f - e_d) / (k * 6.24e11 * t)))
-    return p + nd_plus - n
+    Q = n - nd_plus - p
+    return Q/(p + nd_plus)
 
 
 def _diff_balance_function(nc: float, nv: float, nd: float, t: Kelvin, e_f: eV, e_c: eV, e_v: eV, e_d: eV) -> float:
     """
+    $\frac{Q}{p + N_d^+}$
     :param nc: concentration of electrons
     :param nv: concentration of holes
     :param nd: concentration of donors
@@ -59,12 +61,15 @@ def _diff_balance_function(nc: float, nv: float, nd: float, t: Kelvin, e_f: eV, 
              negatively charged particles number for a specific fermi level
     """
     k = 1.38e-16  # эрг/К
+    n = nc * np.exp((e_f - e_c) / (k * 6.24e11 * t))
+    p = nv * np.exp((e_v - e_f) / (k * 6.24e11 * t))
+    nd_plus = nd / (1. + 0.5 * np.exp((e_f - e_d) / (k * 6.24e11 * t)))
     dn = nc * np.exp((e_f - e_c) / (k * 6.24e11 * t)) / (k * 6.24e11 * t)
     dp = -nv * np.exp((e_v - e_f) / (k * 6.24e11 * t)) / (k * 6.24e11 * t)
     dnd_plus = - nd / (1. + 0.5 * np.exp((e_f - e_d) / (k * 6.24e11 * t))) ** 2 * \
                0.5 * np.exp((e_f - e_d) / (k * 6.24e11 * t)) / (k * 6.24e11 * t)
 
-    return dp + dnd_plus - dn
+    return (dn*(p + nd_plus) - (dp + dnd_plus)*n)/(p + nd_plus)**2
 
 
 def _dichotomy_method(nc: float, nv: float, t: Kelvin, Jd: eV, Ef_low: eV, Ef_upper: eV, Ec: eV,
@@ -95,7 +100,7 @@ def _dichotomy_method(nc: float, nv: float, t: Kelvin, Jd: eV, Ef_low: eV, Ef_up
     q = _count_Q(n=n, p=p, Nd=ndpl)
 
     if np.abs(q / (p + ndpl)) < tolerance:
-        print(f'Nd={Nd}     nc={nc}')
+        # print(f'Nd={Nd}     nc={nc}')
         return Ef, counter
     else:
         if q > 0:
@@ -210,7 +215,7 @@ def fermi_methods() -> list:
 
 
 def calculate_fermi_level(me: me_effective, mh: mh_effective, t: Kelvin, Jd: eV, Ef0: eV, Ec: eV,
-                          Nd: float, method: str, Ev=0., tolerance=1e-7, Ef1=None) -> tuple:
+                          Nd: float, method: str, Ev=0., tolerance=1e-7, Ef1=None, delta=1e-3) -> tuple:
     """
     :param me: эффективная масса электрона
     :param mh: эффективная масса дырки
@@ -243,11 +248,12 @@ def calculate_fermi_level(me: me_effective, mh: mh_effective, t: Kelvin, Jd: eV,
             fermi_level, counter = _newtown_method(nc=nc, nv=nv, nd=Nd, t=t, e_d=Ec-Jd, e_f=Ef0, e_c=Ec, e_v=Ev,
                                                    counter=counter, tolerance=tolerance)
         elif method == 'secant':
-            pass
+            fermi_level, counter = _secant_method(nc=nc, nv=nv, nd=Nd, t=t, e_d=Ec-Jd, e_f=Ef0, e_c=Ec, e_v=Ev,
+                                                  counter=counter, tolerance=tolerance, delta=delta)
         else:
             raise CantMatchMethod(message=method, methods=methods)
 
-        print(f'Fermi level = {fermi_level}, \t needed {counter} iterations')
+        print(f'method: [{method}]\t Fermi level = {fermi_level}, \t needed {counter} iterations')
         return fermi_level, counter
 
     except CantMatchMethod as e:
